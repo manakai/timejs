@@ -30,15 +30,24 @@ TER.prototype._replaceTimeContent = function (el) {
     if (!el.getAttribute ('title')) {
       el.setAttribute ('title', el.textContent || this._getTextContent (el));
     }
+    if (!el.getAttribute ('datetime')) {
+      this._setDateTimeAttr (el, date);
+    }
     this._setDateTimeContent (el, date);
   } else if (date.hasDate) {
     if (!el.getAttribute ('title')) {
       el.setAttribute ('title', el.textContent || this._getTextContent (el));
     }
+    if (!el.getAttribute ('datetime')) {
+      this._setDateAttr (el, date);
+    }
     this._setDateContent (el, date);
   } else if (date.hasTime) {
     if (!el.getAttribute ('title')) {
       el.setAttribute ('title', el.textContent || this._getTextContent (el));
+    }
+    if (!el.getAttribute ('datetime')) {
+      this._setTimeAttr (el, date);
     }
     this._setTimeContent (el, date);
   }
@@ -55,6 +64,36 @@ TER.prototype._setDateContent = function (el, date) {
 TER.prototype._setTimeContent = function (el, date) {
   this._setTextContent (el, this._getLocal (date).toLocaleTimeString ());
 }; // TER.prototype._setTimeContent
+
+TER.prototype._setDateTimeAttr = function (el, date) {
+  var r = '';
+  r = date.getUTCFullYear (); // JS does not support years 0001-0999
+  r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
+  r += '-' + ('0' + date.getUTCDate ()).slice (-2);
+  r += 'T' + ('0' + date.getUTCHours ()).slice (-2);
+  r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
+  r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
+  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
+  r += 'Z';
+  el.setAttribute ('datetime', r);
+}; // TER.prototype._setDateTimeAttr
+
+TER.prototype._setDateAttr = function (el, date) {
+  var r = '';
+  r = date.getUTCFullYear (); // JS does not support years 0001-0999
+  r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
+  r += '-' + ('0' + date.getUTCDate ()).slice (-2);
+  el.setAttribute ('datetime', r);
+}; // TER.prototype._setDateAttr
+
+TER.prototype._setTimeAttr = function (el, date) {
+  var r = '';
+  r = ('0' + date.getUTCHours ()).slice (-2);
+  r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
+  r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
+  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
+  el.setAttribute ('datetime', r);
+}; // TER.prototype._setTimeAttr
 
 TER.prototype._getLocal = function (d) {
   /* Return a Date with same numbers of date/time, but in local timezone */
