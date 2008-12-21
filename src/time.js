@@ -104,7 +104,7 @@ TER.prototype._getLocal = function (d) {
 
 TER.prototype._getDate = function (el) {
   var datetime = el.getAttribute ('datetime');
-  if (datetime) { /* NOTE: IE7 custom element does not have hasAttribute */
+  if (datetime) { /* NOTE: IE7 does not have hasAttribute */
     datetime = el.getAttribute ('datetime');
   } else {
     datetime = el.textContent || this._getTextContent (el);
@@ -323,7 +323,7 @@ Usage:
 
   <script>
     window.onload = function () {
-      new TEROnLoad (document.body);
+      new TER (document.body);
     };
   </script>
   <script src="http://suika.fam.cx/www/style/ui/time.js.u8" charset=utf-8></script>
@@ -335,7 +335,7 @@ Usage:
 
   <script>
     window.onload = function () {
-      new TEROnLoad.Delta (document.body);
+      new TER.Delta (document.body);
     };
   </script>
   <script src="http://suika.fam.cx/www/style/ui/time.js.u8" charset=utf-8></script>
