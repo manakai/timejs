@@ -355,6 +355,24 @@ script are available from
 */
 
 /* ***** BEGIN LICENSE BLOCK *****
+ * Copyright 2008 Wakaba <w@suika.fam.cx>.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the same terms as Perl itself.
+ *
+ * Alternatively, the contents of this file may be used 
+ * under the following terms (the "MPL/GPL/LGPL"), 
+ * in which case the provisions of the MPL/GPL/LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the MPL/GPL/LGPL, and not to allow others to
+ * use your version of this file under the terms of the Perl, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the MPL/GPL/LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the Perl or the MPL/GPL/LGPL.
+ *
+ * "MPL/GPL/LGPL":
+ *
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -369,8 +387,7 @@ script are available from
  *
  * The Original Code is TER code.
  *
- * The Initial Developer of the Original Code is
- * Wakaba <w@suika.fam.cx>.
+ * The Initial Developer of the Original Code is Wakaba.
  * Portions created by the Initial Developer are Copyright (C) 2008
  * the Initial Developer. All Rights Reserved.
  *
@@ -385,7 +402,7 @@ script are available from
  * under the terms of either the GPL or the LGPL, and not to allow others to
  * use your version of this file under the terms of the MPL, indicate your
  * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
+ * and other provisions required by the LGPL or the GPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
