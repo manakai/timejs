@@ -229,21 +229,21 @@ TER.Delta.prototype._setDateTimeContent = function (el, date) {
     if (diff < 60) {
       v = this.text.minute (diff);
       f -= diff * 60;
-      if (f > 0) v += this.text.second (f);
+      if (f > 0) v += this.text.sep () + this.text.second (f);
     } else {
       f = diff;
       diff = Math.floor (diff / 60);
       if (diff < 50) {
         v = this.text.hour (diff);
         f -= diff * 60;
-        if (f > 0) v += this.text.minute (f);
+        if (f > 0) v += this.text.sep () + this.text.minute (f);
       } else {
         f = diff;
         diff = Math.floor (diff / 24);
         if (diff < 100) {
           v = this.text.day (diff);
           f -= diff * 24;
-          if (f > 0) v += this.text.hour (f);
+          if (f > 0) v += this.text.sep () + this.text.hour (f);
         } else {
           this._setTextContent (el, date.toLocaleString ());
           return;
@@ -280,6 +280,9 @@ TER.Delta.Text.en = {
   },
   after: function (s) {
     return 'in ' + s;
+  },
+  sep: function () {
+    return ' ';
   }
 };
 
@@ -301,6 +304,9 @@ TER.Delta.Text.ja = {
   },
   after: function (s) {
     return s + '後';
+  },
+  sep: function () {
+    return '';
   }
 };
 
@@ -352,10 +358,17 @@ Latest version of this script is available at
 script are available from
 <http://suika.fam.cx/www/style/ui/time.js.u8,cvslog>.
 
+This script supports the HTML |time| element, which is a willful
+violation to the HTML Living Standard as of October 30, 2011.
+
+This script interprets "global date and time string" using older
+parsing rules as defined in previous versions of the HTML spec, which
+is a willful violation to the current HTML Living Standard.
+
 */
 
 /* ***** BEGIN LICENSE BLOCK *****
- * Copyright 2008 Wakaba <w@suika.fam.cx>.  All rights reserved.
+ * Copyright 2008-2011 Wakaba <w@suika.fam.cx>.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or 
  * modify it under the same terms as Perl itself.
