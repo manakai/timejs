@@ -36,7 +36,7 @@ otherwise they cannot be parsed appropriately in WinIE.
 Latest version of this script is available at
 [http://suika.fam.cx/www/style/ui/time.js.u8](http://suika.fam.cx/www/style/ui/time.js.u8).
 Old versions of this script are available from
-[http://suika.fam.cx/www/style/ui/time.js.u8,cvslog](http://suika.fam.cx/www/style/ui/time.js.u8,cvslog).
+[https://suika.suikawiki.org/gate/cvs/melon/suikacvs/webroot/www/style/ui/time.js.u8](https://suika.suikawiki.org/gate/cvs/melon/suikacvs/webroot/www/style/ui/time.js.u8).
 
 This script supports the HTML `time` element, which is a willful
 violation to the HTML Living Standard as of October 30, 2011.
