@@ -29,15 +29,6 @@ time.js
 <!-- Will be rendered like "2 minutes ago" in English or Japanese -->
 ```
 
-If you'd like to load this script AFTER `time` elements are parsed,
-invoke `document.createElement ('time')` before they are used,
-otherwise they cannot be parsed appropriately in WinIE.
-
-Latest version of this script is available at
-[http://suika.fam.cx/www/style/ui/time.js.u8](http://suika.fam.cx/www/style/ui/time.js.u8).
-Old versions of this script are available from
-[https://suika.suikawiki.org/gate/cvs/melon/suikacvs/webroot/www/style/ui/time.js.u8](https://suika.suikawiki.org/gate/cvs/melon/suikacvs/webroot/www/style/ui/time.js.u8).
-
 This script supports the HTML `time` element, which is a willful
 violation to the HTML Living Standard as of October 30, 2011.
 
