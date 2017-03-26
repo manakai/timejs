@@ -25,3 +25,14 @@ test:
         parallel: true
     - docker kill firefoxdriver:
         parallel: true
+
+deployment:
+  nightly:
+    branch: nightly
+    commands:
+      - curl -f -s -S --request POST --header "Authorization:token $GITHUB_ACCESS_TOKEN" --header "Content-Type:application/json" --data-binary "{\"base\":\"staging\",\"head\":\"`git rev-parse HEAD`\",\"commit_message\":\"auto-merge nightly into staging\"}" "https://api.github.com/repos/wakaba/timejs/merges"
+  staging:
+    branch: staging
+    commands:
+      - curl -f -s -S --request POST --header "Authorization:token $GITHUB_ACCESS_TOKEN" --header "Content-Type:application/json" --data-binary "{\"base\":\"master\",\"head\":\"`cat head.txt`\",\"commit_message\":\"auto-merge staging into master\"}" "https://api.github.com/repos/wakaba/timejs/merges"
+
