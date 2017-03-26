@@ -1,0 +1,8 @@
+#!/bin/bash
+
+Xvfb :0 -screen 0 1024x768x24 &
+DISPLAY=:0 LANG=en_US.utf-8 /geckodriver --host 0.0.0.0 --port 9516 --binary /firefox/firefox &
+DISPLAY=:0 LANG=ja_JP.utf-8 /geckodriver --host 0.0.0.0 --port 9517 --binary /firefox/firefox &
+
+trap 'pkill -P $$' 1 2 3 15
+wait
