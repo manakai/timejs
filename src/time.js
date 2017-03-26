@@ -338,7 +338,7 @@ Usage:
       new TER (document.body);
     };
   </script>
-  <script src="http://suika.fam.cx/www/style/ui/time.js.u8" charset=utf-8></script>
+  <script src="time.js" charset=utf-8></script>
   
   <time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered appropriately in the user's locale -->
@@ -350,18 +350,19 @@ Usage:
       new TER.Delta (document.body);
     };
   </script>
-  <script src="http://suika.fam.cx/www/style/ui/time.js.u8" charset=utf-8></script>
+  <script src="time.js" charset=utf-8></script>
   
   <time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered like "2 minutes ago" in English or Japanese -->
 
-Latest version of this script is available at
-<http://suika.fam.cx/www/style/ui/time.js.u8>.
-Git repository of this script is
+Repository:
+
+Latest version of this script is available in Git repository
 <https://github.com/wakaba/timejs>.
 
-This script supports the HTML |time| element, which is a willful
-violation to the HTML Living Standard as of October 30, 2011.
+Specification:
+
+HTML Standard <https://html.spec.whatwg.org/#the-time-element>.
 
 This script interprets "global date and time string" using older
 parsing rules as defined in previous versions of the HTML spec, which
