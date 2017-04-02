@@ -25,6 +25,9 @@ test:
         parallel: true
     - docker kill firefoxdriver:
         parallel: true
+  post:
+    - mkdir $CIRCLE_ARTIFACTS/test_results
+    - mv test_results/* $CIRCLE_ARTIFACTS/test_results
 
 deployment:
   nightly:
