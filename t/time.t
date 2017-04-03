@@ -2,21 +2,25 @@ use strict;
 use warnings;
 use Path::Tiny;
 use lib glob path (__FILE__)->parent->parent->child ('t_deps/modules/*/lib');
+use File::Path qw( make_path );
+use IO::File;
 use Promise;
 use Web::URL;
 use Web::Driver::Client::Connection;
 
 my $test_wd_en_url = $ENV{TEST_WD_EN_URL};
 my $test_wd_ja_url = $ENV{TEST_WD_JA_URL};
+my $test_results_dir = $ENV{TEST_RESULTS_DIR} || 'test_results';
 
 sub run_tests {
   print "1..2\n";
-  execute_test_html_file ($test_wd_en_url, q<file:///project/t/time-ter-tests.html?locale=en-US>);
-  execute_test_html_file ($test_wd_ja_url, q<file:///project/t/time-ter-tests.html?locale=ja-JP>);
+  make_path $test_results_dir;
+  execute_test_html_file ($test_wd_en_url, q<file:///project/t/time-ter-tests.html?locale=en-US>, "$test_results_dir/ter-en.html");
+  execute_test_html_file ($test_wd_ja_url, q<file:///project/t/time-ter-tests.html?locale=ja-JP>, "$test_results_dir/ter-ja.html");
 }
 
 sub execute_test_html_file {
-  my ($test_wd_url, $test_url) = @_;
+  my ($test_wd_url, $test_url, $test_result_file_path) = @_;
   my $wd_url = Web::URL->parse_string ($test_wd_url);
   Promise->resolve (1)->then (sub {
     my $wd = Web::Driver::Client::Connection->new_from_url ($wd_url);
@@ -25,18 +29,36 @@ sub execute_test_html_file {
       my $p = $session->go (Web::URL->parse_string ($test_url))->then (sub {
         return $session->execute (q{
           var elems = document.querySelectorAll("#qunit-tests > li");
-          return Array.prototype.map.call(elems, function (e, i) {
-            return e.classList.contains("pass") ?
-                ["ok"] :
-                ["not ok", e.textContent.replace(/\n/g, " ")];
+          var clonedHead = document.querySelector("head").cloneNode(true);
+          Array.prototype.forEach.call(clonedHead.querySelectorAll("script"), function (e) {
+            clonedHead.removeChild(e);
           });
+          var clonedBody = document.querySelector("body").cloneNode(true);
+          ["#qunit-testrunner-toolbar", "#qunit-testresult"].forEach(function (selector) {
+            var elem = clonedBody.querySelector(selector);
+            elem.parentElement.removeChild(elem);
+          });
+          return {
+            testResults: Array.prototype.map.call(elems, function (e, i) {
+              return e.classList.contains("pass") ?
+                  ["ok"] :
+                  ["not ok", e.textContent.replace(/\n/g, " ")];
+            }),
+            testResultsHtmlString:
+                "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
+          };
         });
       })->then (sub {
         my $res = $_[0];
-        my $test_lines = $res->json->{value};
+        my $test_lines = $res->json->{value}->{testResults};
         for my $line_items (@$test_lines) {
-          print join('-', @$line_items), "\n";
+          print join(' - ', @$line_items), "\n";
         }
+
+        my $fh = IO::File->new($test_result_file_path, "w");
+        die "File open failed: $test_result_file_path" if not defined $fh;
+        print $fh $res->json->{value}->{testResultsHtmlString};
+        undef $fh;
       });
       return $p->catch (sub {})->then (sub {
         return $session->close;
