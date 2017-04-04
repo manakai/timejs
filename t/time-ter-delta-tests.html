@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>time.js TER.Delta test</title>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.2.0.css">
+  <script src="https://code.jquery.com/qunit/qunit-2.2.0.js"></script>
+  <script src="http://sinonjs.org/releases/sinon-2.1.0.js"></script>
+  <script>
+    window.onload = function () {
+      var clock = sinon.useFakeTimers(Date.parse("2016-01-02T00:00:00Z"));
+      new TER.Delta(document.body);
+    };
+  </script>
+  <script src="../src/time.js"></script>
+  <script>
+    var envLocale = new URLSearchParams(location.search).get("locale")
+
+    QUnit.test("replace `time` content", function (assert) {
+      var testElemIdToExpectedValuesDictionary = {
+        "test-time-1-absolute": {
+          "en-US": "9/24/2015, 12:00:00 AM",
+          "ja-JP": "2015/9/24 0:00:00",
+        },
+        "test-time-1-days": {
+          "en-US": "99 days 23 hours ago",
+          "ja-JP": "99日23時間前",
+        },
+        "test-time-2-days": {
+          "en-US": "2 days 2 hours ago",
+          "ja-JP": "2日2時間前",
+        },
+        "test-time-2-hours": {
+          "en-US": "49 hours 59 minutes ago",
+          "ja-JP": "49時間59分前",
+        },
+        "test-time-3-hours-minutes": {
+          "en-US": "1 hour 1 minute ago",
+          "ja-JP": "1時間1分前",
+        },
+        "test-time-3-hours": {
+          "en-US": "1 hour ago",
+          "ja-JP": "1時間前",
+        },
+        "test-time-4-hours": {
+          "en-US": "1 hour ago",
+          "ja-JP": "1時間前",
+        },
+        "test-time-4-minutes": {
+          "en-US": "59 minutes 59 seconds ago",
+          "ja-JP": "59分59秒前",
+        },
+        "test-time-5-minutes-seconds": {
+          "en-US": "1 minute 1 second ago",
+          "ja-JP": "1分1秒前",
+        },
+        "test-time-5-minutes": {
+          "en-US": "1 minute ago",
+          "ja-JP": "1分前",
+        },
+        "test-time-5-seconds": {
+          "en-US": "59 seconds ago",
+          "ja-JP": "59秒前",
+        },
+        "test-time-6-seconds": {
+          "en-US": "1 second ago",
+          "ja-JP": "1秒前",
+        },
+        "test-time-6-current": {
+          "en-US": "just now",
+          "ja-JP": "今",
+        },
+        "test-time-6-seconds-future": {
+          "en-US": "in 1 second",
+          "ja-JP": "1秒後",
+        },
+        "test-time-7-seconds-future": {
+          "en-US": "in 59 seconds",
+          "ja-JP": "59秒後",
+        },
+        "test-time-7-minutes-future": {
+          "en-US": "in 1 minute",
+          "ja-JP": "1分後",
+        },
+        "test-time-7-minutes-seconds-future": {
+          "en-US": "in 1 minute 1 second",
+          "ja-JP": "1分1秒後",
+        },
+        "test-time-8-minutes-future": {
+          "en-US": "in 59 minutes 59 seconds",
+          "ja-JP": "59分59秒後",
+        },
+        "test-time-8-hours-future": {
+          "en-US": "in 1 hour",
+          "ja-JP": "1時間後",
+        },
+        "test-time-9-hours-future": {
+          "en-US": "in 1 hour",
+          "ja-JP": "1時間後",
+        },
+        "test-time-9-hours-minutes-future": {
+          "en-US": "in 1 hour 1 minute",
+          "ja-JP": "1時間1分後",
+        },
+        "test-time-10-hours-future": {
+          "en-US": "in 49 hours 59 minutes",
+          "ja-JP": "49時間59分後",
+        },
+        "test-time-10-days-future": {
+          "en-US": "in 2 days 2 hours",
+          "ja-JP": "2日2時間後",
+        },
+        "test-time-11-days-future": {
+          "en-US": "in 99 days 23 hours",
+          "ja-JP": "99日23時間後",
+        },
+        "test-time-11-absolute-future": {
+          "en-US": "4/11/2016, 12:00:00 AM",
+          "ja-JP": "2016/4/11 0:00:00",
+        },
+      };
+      Object.keys(testElemIdToExpectedValuesDictionary).forEach(function (testElemId) {
+        var expectedValues = testElemIdToExpectedValuesDictionary[testElemId];
+        assert.equal(document.getElementById(testElemId).textContent, expectedValues[envLocale]);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <time id="test-time-1-absolute">2015-09-24T00:00:00Z</time>
+    <time id="test-time-1-days">2015-09-24T00:00:01Z</time>
+
+    <time id="test-time-2-days">2015-12-30T22:00:00Z</time>
+    <time id="test-time-2-hours">2015-12-30T22:00:01Z</time>
+
+    <time id="test-time-3-hours-minutes">2016-01-01T22:59:00Z</time>
+    <time id="test-time-3-hours">2016-01-01T22:59:01Z</time>
+
+    <time id="test-time-4-hours">2016-01-01T23:00:00Z</time>
+    <time id="test-time-4-minutes">2016-01-01T23:00:01Z</time>
+
+    <time id="test-time-5-minutes-seconds">2016-01-01T23:58:59Z</time>
+    <time id="test-time-5-minutes">2016-01-01T23:59:00Z</time>
+    <time id="test-time-5-seconds">2016-01-01T23:59:01Z</time>
+
+    <time id="test-time-6-seconds">2016-01-01T23:59:59Z</time>
+    <time id="test-time-6-current">2016-01-02T00:00:00Z</time>
+    <time id="test-time-6-seconds-future">2016-01-02T00:00:01Z</time>
+
+    <time id="test-time-7-seconds-future">2016-01-02T00:00:59Z</time>
+    <time id="test-time-7-minutes-future">2016-01-02T00:01:00Z</time>
+    <time id="test-time-7-minutes-seconds-future">2016-01-02T00:01:01Z</time>
+
+    <time id="test-time-8-minutes-future">2016-01-02T00:59:59Z</time>
+    <time id="test-time-8-hours-future">2016-01-02T01:00:00Z</time>
+
+    <time id="test-time-9-hours-future">2016-01-02T01:00:59Z</time>
+    <time id="test-time-9-hours-minutes-future">2016-01-02T01:01:00Z</time>
+
+    <time id="test-time-10-hours-future">2016-01-04T01:59:59Z</time>
+    <time id="test-time-10-days-future">2016-01-04T02:00:00Z</time>
+
+    <time id="test-time-11-days-future">2016-04-10T23:59:59Z</time>
+    <time id="test-time-11-absolute-future">2016-04-11T00:00:00Z</time>
+  </div>
+</body>
+</html>
+<!-- ***** BEGIN LICENSE BLOCK *****
+Copyright 2017 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+Copyright 2017 Hatena <http://hatenacorp.jp/>.  All rights reserved.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+Alternatively, the contents of this file may be used
+under the following terms (the "MPL/GPL/LGPL"),
+in which case the provisions of the MPL/GPL/LGPL are applicable instead
+of those above. If you wish to allow use of your version of this file only
+under the terms of the MPL/GPL/LGPL, and not to allow others to
+use your version of this file under the terms of the Perl, indicate your
+decision by deleting the provisions above and replace them with the notice
+and other provisions required by the MPL/GPL/LGPL. If you do not delete
+the provisions above, a recipient may use your version of this file under
+the terms of any one of the Perl or the MPL/GPL/LGPL.
+
+"MPL/GPL/LGPL":
+
+Version: MPL 1.1/GPL 2.0/LGPL 2.1
+
+The contents of this file are subject to the Mozilla Public License Version
+1.1 (the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+<http://www.mozilla.org/MPL/>
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+for the specific language governing rights and limitations under the
+License.
+
+The Original Code is TER code.
+
+The Initial Developer of the Original Code is Wakaba.
+Portions created by the Initial Developer are Copyright (C) 2008
+the Initial Developer. All Rights Reserved.
+
+Contributor(s):
+  Wakaba <wakaba@suikawiki.org>
+
+Alternatively, the contents of this file may be used under the terms of
+either the GNU General Public License Version 2 or later (the "GPL"), or
+the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+in which case the provisions of the GPL or the LGPL are applicable instead
+of those above. If you wish to allow use of your version of this file only
+under the terms of either the GPL or the LGPL, and not to allow others to
+use your version of this file under the terms of the MPL, indicate your
+decision by deleting the provisions above and replace them with the notice
+and other provisions required by the LGPL or the GPL. If you do not delete
+the provisions above, a recipient may use your version of this file under
+the terms of any one of the MPL, the GPL or the LGPL.
+
+***** END LICENSE BLOCK ***** -->

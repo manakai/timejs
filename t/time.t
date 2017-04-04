@@ -13,18 +13,25 @@ my $test_wd_ja_url = $ENV{TEST_WD_JA_URL};
 my $test_results_dir = $ENV{TEST_RESULTS_DIR} || 'test_results';
 
 sub run_tests {
-  print "1..2\n";
+  print "1..4\n";
   make_path $test_results_dir;
-  execute_test_html_file ($test_wd_en_url, q<file:///project/t/time-ter-tests.html?locale=en-US>, "$test_results_dir/ter-en.html");
-  execute_test_html_file ($test_wd_ja_url, q<file:///project/t/time-ter-tests.html?locale=ja-JP>, "$test_results_dir/ter-ja.html");
+  # Tests for `TER`.
+  # (On Firefox, `Date.prototype.toLocaleString` method depends on locale of OS.)
+  execute_test_html_file ($test_wd_en_url, 'en-US, en', q<file:///project/t/time-ter-tests.html?locale=en-US>, "$test_results_dir/ter-en.html");
+  execute_test_html_file ($test_wd_ja_url, 'ja-JP, en-US, en', q<file:///project/t/time-ter-tests.html?locale=ja-JP>, "$test_results_dir/ter-ja.html");
+  # Tests for `TER.Delta`.
+  # (On Firefox, `navigator.language` depends on `intl.accept_languages` of prefs.)
+  execute_test_html_file ($test_wd_en_url, 'en-US, en', q<file:///project/t/time-ter-delta-tests.html?locale=en-US>, "$test_results_dir/ter-delta-en.html");
+  execute_test_html_file ($test_wd_ja_url, 'ja-JP, en-US, en', q<file:///project/t/time-ter-delta-tests.html?locale=ja-JP>, "$test_results_dir/ter-delta-ja.html");
 }
 
 sub execute_test_html_file {
-  my ($test_wd_url, $test_url, $test_result_file_path) = @_;
+  my ($test_wd_url, $pref_accept_languages, $test_url, $test_result_file_path) = @_;
   my $wd_url = Web::URL->parse_string ($test_wd_url);
   Promise->resolve (1)->then (sub {
     my $wd = Web::Driver::Client::Connection->new_from_url ($wd_url);
-    my $p = $wd->new_session (desired => {})->then (sub {
+    my $firefox_prefs = { 'intl.accept_languages' => $pref_accept_languages };
+    my $p = $wd->new_session (desired => { "moz:firefoxOptions" => { 'prefs' => $firefox_prefs } })->then (sub {
       my $session = $_[0];
       my $p = $session->go (Web::URL->parse_string ($test_url))->then (sub {
         return $session->execute (q{
