@@ -33,12 +33,12 @@ pmbp-install: pmbp-upgrade
 
 ## ------ Tests ------
 
-PROVE = ./prove
+PERL = ./perl
 
 test: test-deps test-main
 
 test-deps: deps
 
-# XXX requires TEST_WD_EN_URL and TEST_WD_JA_URL
+# XXX requires TEST_WD_URL and TEST_LANG
 test-main:
-	TEST_MAX_CONCUR=1 WEBUA_DEBUG=2 $(PROVE) t/*.t
+	TEST_MAX_CONCUR=1 WEBUA_DEBUG=2 $(PERL) t/run-qunit-tests.pl
