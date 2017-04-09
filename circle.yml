@@ -16,6 +16,7 @@ dependencies:
 
 test:
   override:
+    # Firefox en
     - docker run --name firefoxdriver-en -e "LANG=en_US.utf-8" -v $(pwd):/project -d --net=host -t quay.io/wakaba/firefoxdriver:stable /fx:
         parallel: true
     - TEST_WD_URL=http://localhost:9516 TEST_LANG=en TEST_RESULTS_DIR=$CIRCLE_ARTIFACTS/test_results/firefox-en make test :
@@ -25,7 +26,7 @@ test:
         parallel: true
     - docker kill firefoxdriver-en:
         parallel: true
-
+    # Firefox ja
     - docker run --name firefoxdriver-ja -e "LANG=ja_JP.utf-8" -v $(pwd):/project -d --net=host -t quay.io/wakaba/firefoxdriver:stable /fx:
         parallel: true
     - TEST_WD_URL=http://localhost:9516 TEST_LANG=ja TEST_RESULTS_DIR=$CIRCLE_ARTIFACTS/test_results/firefox-ja make test :
@@ -34,6 +35,26 @@ test:
     - docker logs firefoxdriver-ja:
         parallel: true
     - docker kill firefoxdriver-ja:
+        parallel: true
+    # Chrome en
+    - docker run --name chromedriver-en -e "LANG=en_US.utf-8" -v $(pwd):/project -d --net=host -t quay.io/wakaba/chromedriver:chromium /cd:
+        parallel: true
+    - TEST_WD_URL=http://localhost:9515 TEST_LANG=en TEST_RESULTS_DIR=$CIRCLE_ARTIFACTS/test_results/chromium-en make test :
+        timeout: 600
+        parallel: true
+    - docker logs chromedriver-en:
+        parallel: true
+    - docker kill chromedriver-en:
+        parallel: true
+    # Chrome ja
+    - docker run --name chromedriver-ja -e "LANG=ja_JP.utf-8" -v $(pwd):/project -d --net=host -t quay.io/wakaba/chromedriver:chromium /cd:
+        parallel: true
+    - TEST_WD_URL=http://localhost:9515 TEST_LANG=ja TEST_RESULTS_DIR=$CIRCLE_ARTIFACTS/test_results/chromium-ja make test :
+        timeout: 600
+        parallel: true
+    - docker logs chromedriver-ja:
+        parallel: true
+    - docker kill chromedriver-ja:
         parallel: true
 
 deployment:
