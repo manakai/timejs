@@ -2,40 +2,71 @@ use strict;
 use warnings;
 use Path::Tiny;
 use lib glob path (__FILE__)->parent->parent->child ('t_deps/modules/*/lib');
-use File::Path qw( make_path );
 use IO::File;
 use Promise;
 use Web::URL;
 use Web::Driver::Client::Connection;
 
-my $test_wd_en_url = $ENV{TEST_WD_EN_URL};
-my $test_wd_ja_url = $ENV{TEST_WD_JA_URL};
-my $test_results_dir = $ENV{TEST_RESULTS_DIR} || 'test_results';
+my $root_path = path (__FILE__)->parent->parent;
+
+# Notes
+# * On Firefox,
+#   * `Date.prototype.toLocaleString` method depends on locale of OS, and
+#   * `navigator.language` depends on `intl.accept_languages` of prefs.
+
+my $LANG_TO_PREF_MAP = {
+  'en' => {
+    query_string => '?locale=en-US',
+    wd_desired_capabilities => {
+      'moz:firefoxOptions' => { 'prefs' => { 'intl.accept_languages' => 'en-US, en' } },
+    },
+  },
+  'ja' => {
+    query_string => '?locale=ja-JP',
+    wd_desired_capabilities => {
+      'moz:firefoxOptions' => { 'prefs' => { 'intl.accept_languages' => 'ja-JP, en-US, en' } },
+    },
+  },
+};
 
 sub run_tests {
-  print "1..4\n";
-  make_path $test_results_dir;
-  # Tests for `TER`.
-  # (On Firefox, `Date.prototype.toLocaleString` method depends on locale of OS.)
-  execute_test_html_file ($test_wd_en_url, 'en-US, en', q<file:///project/t/time-ter-tests.html?locale=en-US>, "$test_results_dir/ter-en.html");
-  execute_test_html_file ($test_wd_ja_url, 'ja-JP, en-US, en', q<file:///project/t/time-ter-tests.html?locale=ja-JP>, "$test_results_dir/ter-ja.html");
-  # Tests for `TER.Delta`.
-  # (On Firefox, `navigator.language` depends on `intl.accept_languages` of prefs.)
-  execute_test_html_file ($test_wd_en_url, 'en-US, en', q<file:///project/t/time-ter-delta-tests.html?locale=en-US>, "$test_results_dir/ter-delta-en.html");
-  execute_test_html_file ($test_wd_ja_url, 'ja-JP, en-US, en', q<file:///project/t/time-ter-delta-tests.html?locale=ja-JP>, "$test_results_dir/ter-delta-ja.html");
+  my $test_wd_url = $ENV{TEST_WD_URL} || die 'Environment variable `TEST_WD_URL` must be set`';
+  my $test_lang = $ENV{TEST_LANG} || die 'Environment variable `TEST_LANG` must be set`';
+  my $test_results_path = defined $ENV{TEST_RESULTS_DIR} ? path ($ENV{TEST_RESULTS_DIR}) : $root_path->child ("local/test/results");
+
+  my $test_pref = $LANG_TO_PREF_MAP->{$test_lang} || die "Unknown `TEST_LANG` value : $test_lang";
+  my $query_string = $test_pref->{query_string};
+  my $wd_desired_capabilities = $test_pref->{wd_desired_capabilities};
+
+  $test_results_path->mkpath;
+  my $exit_code = 0;
+  for my $path ($root_path->child ('t')->children (qr/\.html\z/)) {
+    my $url = "file:///project/${path}${query_string}";
+    my $result_path = $test_results_path->child ($path->basename);
+    print "# $path\n";
+    my $pass = execute_test_html_file ($test_wd_url, $wd_desired_capabilities, $url, $result_path);
+    if ($pass) {
+      print "ok - $url -> $result_path\n";
+    } else {
+      print "not ok - $url -> $result_path\n";
+      $exit_code = 1;
+    }
+  }
+  return $exit_code;
 }
 
 sub execute_test_html_file {
-  my ($test_wd_url, $pref_accept_languages, $test_url, $test_result_file_path) = @_;
+  my ($test_wd_url, $wd_desired_capabilities, $test_url, $test_result_file_path) = @_;
+  my $all_tests_passed = 0;
+
   my $wd_url = Web::URL->parse_string ($test_wd_url);
   Promise->resolve (1)->then (sub {
     my $wd = Web::Driver::Client::Connection->new_from_url ($wd_url);
-    my $firefox_prefs = { 'intl.accept_languages' => $pref_accept_languages };
-    my $p = $wd->new_session (desired => { "moz:firefoxOptions" => { 'prefs' => $firefox_prefs } })->then (sub {
+    my $p = $wd->new_session (desired => $wd_desired_capabilities)->then (sub {
       my $session = $_[0];
       my $p = $session->go (Web::URL->parse_string ($test_url))->then (sub {
         return $session->execute (q{
-          var elems = document.querySelectorAll("#qunit-tests > li");
+          var allTestsPassed = document.querySelector("#qunit-banner").classList.contains("qunit-pass");
           var clonedHead = document.querySelector("head").cloneNode(true);
           Array.prototype.forEach.call(clonedHead.querySelectorAll("script"), function (e) {
             clonedHead.removeChild(e);
@@ -46,23 +77,16 @@ sub execute_test_html_file {
             elem.parentElement.removeChild(elem);
           });
           return {
-            testResults: Array.prototype.map.call(elems, function (e, i) {
-              return e.classList.contains("pass") ?
-                  ["ok"] :
-                  ["not ok", e.textContent.replace(/\n/g, " ")];
-            }),
+            allTestsPassed: allTestsPassed,
             testResultsHtmlString:
                 "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
           };
         });
       })->then (sub {
         my $res = $_[0];
-        my $test_lines = $res->json->{value}->{testResults};
-        for my $line_items (@$test_lines) {
-          print join(' - ', @$line_items), "\n";
-        }
+        $all_tests_passed = $res->json->{value}->{allTestsPassed};
 
-        my $fh = IO::File->new($test_result_file_path, "w");
+        my $fh = IO::File->new($test_result_file_path, ">:encoding(utf8)");
         die "File open failed: $test_result_file_path" if not defined $fh;
         print $fh $res->json->{value}->{testResultsHtmlString};
         undef $fh;
@@ -75,9 +99,12 @@ sub execute_test_html_file {
       return $wd->close;
     })->then (sub { return $p; });
   })->to_cv->recv;
+
+  return $all_tests_passed;
 }
 
-run_tests();
+my $exit_code = run_tests();
+exit $exit_code;
 
 =head1 LICENSE
 
