@@ -39,8 +39,8 @@ echo "#"
 
 container_name="wd-$name_ua-$name_tz-$name_locale"
 test_name="$name_ua-$name_tz-$name_locale"
-test_results_dir=${CIRCLE_ARTIFACTS:-"$PROJECT_DIR_ABS/local/test"}/results/$test_name
-docker_log_path=${CIRCLE_ARTIFACTS:-"$PROJECT_DIR_ABS/local/test"}/docker-log-$test_name.text
+test_results_dir=${CIRCLE_ARTIFACTS:-"$PROJECT_DIR_ABS/local"}/test/results/$test_name
+docker_log_path=${CIRCLE_ARTIFACTS:-"$PROJECT_DIR_ABS/local"}/test/docker-log-$test_name.text
 
 $DOCKER run --name $container_name -e "TZ=$wd_tz_env" -e "LANG=$wd_lang_env" -v $mount_spec -d -p "$wd_port:$wd_port" -t $image_name
 
