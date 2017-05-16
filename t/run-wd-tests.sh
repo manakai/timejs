@@ -27,9 +27,9 @@ case $WD_LOCALE in
 esac
 
 case $WD_TZ in
-  "UTC")                 name_tz="utc" ; wd_tz_env="UTC"                 ; test_tz="UTC"                 ;;
-  "America/Los_Angeles") name_tz="us"  ; wd_tz_env="America/Los_Angeles" ; test_tz="America/Los_Angeles" ;;
-  "Asia/Tokyo")          name_tz="jp"  ; wd_tz_env="Asia/Tokyo"          ; test_tz="Asia/Tokyo"          ;;
+  "UTC")                 name_tz="utc"   ; wd_tz_env="UTC"                 ; test_tz="UTC"                 ;;
+  "America/Los_Angeles") name_tz="la"    ; wd_tz_env="America/Los_Angeles" ; test_tz="America/Los_Angeles" ;;
+  "Asia/Tokyo")          name_tz="tokyo" ; wd_tz_env="Asia/Tokyo"          ; test_tz="Asia/Tokyo"          ;;
   *) echo "Unknown \$WD_TZ: $WD_TZ"; exit 1 ;;
 esac
 
