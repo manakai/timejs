@@ -1,21 +1,28 @@
 [submodule "t_deps/modules/web-driver-client"]
 	path = t_deps/modules/web-driver-client
 	url = https://github.com/manakai/perl-web-driver-client.git
+	track = master
 [submodule "t_deps/modules/web-resource"]
 	path = t_deps/modules/web-resource
 	url = https://github.com/manakai/perl-web-resource.git
+	track = master
 [submodule "t_deps/modules/promise"]
 	path = t_deps/modules/promise
 	url = https://github.com/wakaba/perl-promise.git
+	track = master
 [submodule "t_deps/modules/web-url"]
 	path = t_deps/modules/web-url
 	url = https://github.com/manakai/perl-web-url.git
+	track = master
 [submodule "t_deps/modules/web-encodings"]
 	path = t_deps/modules/web-encodings
 	url = https://github.com/manakai/perl-web-encodings.git
+	track = master
 [submodule "t_deps/modules/web-datetime"]
 	path = t_deps/modules/web-datetime
 	url = https://github.com/manakai/perl-web-datetime.git
+	track = master
 [submodule "t_deps/modules/json-ps"]
 	path = t_deps/modules/json-ps
 	url = https://github.com/wakaba/perl-json-ps.git
+	track = master
