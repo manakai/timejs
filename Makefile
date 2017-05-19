@@ -39,6 +39,5 @@ test: test-deps test-main
 
 test-deps: deps
 
-# XXX requires TEST_WD_URL and TEST_LANG
 test-main:
-	TEST_MAX_CONCUR=1 WEBUA_DEBUG=2 $(PERL) t/run-qunit-tests.pl
+	TEST_MAX_CONCUR=1 WEBUA_DEBUG=2 ./t/iterate-all-wd-env.sh ./t/run-wd-tests.sh
