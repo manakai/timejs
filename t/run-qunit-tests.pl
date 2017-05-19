@@ -3,45 +3,26 @@ use warnings;
 use Path::Tiny;
 use lib glob path (__FILE__)->parent->parent->child ('t_deps/modules/*/lib');
 use IO::File;
+use JSON::PS;
+use MIME::Base64 ();
 use Promise;
 use Web::URL;
 use Web::Driver::Client::Connection;
 
 my $root_path = path (__FILE__)->parent->parent;
 
-# Notes
-# * On Firefox,
-#   * `Date.prototype.toLocaleString` method depends on locale of OS, and
-#   * `navigator.language` depends on `intl.accept_languages` of prefs.
-
-my $LANG_TO_PREF_MAP = {
-  'en' => {
-    query_string => '?locale=en-US',
-    wd_desired_capabilities => {
-      'moz:firefoxOptions' => { 'prefs' => { 'intl.accept_languages' => 'en-US, en' } },
-    },
-  },
-  'ja' => {
-    query_string => '?locale=ja-JP',
-    wd_desired_capabilities => {
-      'moz:firefoxOptions' => { 'prefs' => { 'intl.accept_languages' => 'ja-JP, en-US, en' } },
-    },
-  },
-};
-
 sub run_tests {
   my $test_wd_url = $ENV{TEST_WD_URL} || die 'Environment variable `TEST_WD_URL` must be set`';
-  my $test_lang = $ENV{TEST_LANG} || die 'Environment variable `TEST_LANG` must be set`';
   my $test_results_path = defined $ENV{TEST_RESULTS_DIR} ? path ($ENV{TEST_RESULTS_DIR}) : $root_path->child ("local/test/results");
-
-  my $test_pref = $LANG_TO_PREF_MAP->{$test_lang} || die "Unknown `TEST_LANG` value : $test_lang";
-  my $query_string = $test_pref->{query_string};
-  my $wd_desired_capabilities = $test_pref->{wd_desired_capabilities};
+  my $query_string = defined $ENV{TEST_URL_QUERY_STRING} ? '?' . $ENV{TEST_URL_QUERY_STRING} : '';
+  my $wd_desired_capabilities = defined $ENV{TEST_WD_DESIRED_CAPABILITIES} ?
+      json_bytes2perl $ENV{TEST_WD_DESIRED_CAPABILITIES} : {};
 
   $test_results_path->mkpath;
   my $exit_code = 0;
   for my $path ($root_path->child ('t')->children (qr/\.html\z/)) {
-    my $url = "file:///project/${path}${query_string}";
+    my $rel_path = $path->relative($root_path);
+    my $url = "file:///project/${rel_path}${query_string}";
     my $result_path = $test_results_path->child ($path->basename);
     print "# $path\n";
     my $pass = execute_test_html_file ($test_wd_url, $wd_desired_capabilities, $url, $result_path);
@@ -64,32 +45,76 @@ sub execute_test_html_file {
     my $wd = Web::Driver::Client::Connection->new_from_url ($wd_url);
     my $p = $wd->new_session (desired => $wd_desired_capabilities)->then (sub {
       my $session = $_[0];
-      my $p = $session->go (Web::URL->parse_string ($test_url))->then (sub {
-        return $session->execute (q{
-          var allTestsPassed = document.querySelector("#qunit-banner").classList.contains("qunit-pass");
-          var clonedHead = document.querySelector("head").cloneNode(true);
-          Array.prototype.forEach.call(clonedHead.querySelectorAll("script"), function (e) {
-            clonedHead.removeChild(e);
+      my $p = Promise->resolve (1)->then (sub {
+        return set_script_timeout ($wd, $session->session_id, 5000);
+      })->then (sub {
+        return $session->go (Web::URL->parse_string ($test_url));
+      })->then (sub {
+        return execute_async ($wd, $session->session_id, q{
+          return Promise.resolve().then(function () {
+            var bannerElem = document.querySelector("#qunit-banner");
+            var testFinished = bannerElem.classList.contains("qunit-pass") || bannerElem.classList.contains("qunit-fail");
+            if (!testFinished) {
+              return new Promise(function (resolve, reject) {
+                QUnit.done(function () { resolve() });
+              });
+            }
+          }).then(function () {
+            var bannerElem = document.querySelector("#qunit-banner");
+            var allTestsPassed = bannerElem.classList.contains("qunit-pass");
+            var clonedHead = document.querySelector("head").cloneNode(true);
+            Array.prototype.forEach.call(clonedHead.querySelectorAll("script"), function (e) {
+              clonedHead.removeChild(e);
+            });
+            var clonedBody = document.querySelector("body").cloneNode(true);
+            ["#qunit-testrunner-toolbar", "#qunit-testresult"].forEach(function (selector) {
+              var elem = clonedBody.querySelector(selector);
+              elem.parentElement.removeChild(elem);
+            });
+            return {
+              allTestsPassed: allTestsPassed,
+              testResultsHtmlString:
+                  "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
+            };
           });
-          var clonedBody = document.querySelector("body").cloneNode(true);
-          ["#qunit-testrunner-toolbar", "#qunit-testresult"].forEach(function (selector) {
-            var elem = clonedBody.querySelector(selector);
-            elem.parentElement.removeChild(elem);
-          });
-          return {
-            allTestsPassed: allTestsPassed,
-            testResultsHtmlString:
-                "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
-          };
+        })->then (sub {
+          my $result = $_[0];
+          $all_tests_passed = $result->{value}->{allTestsPassed};
+
+          my $fh = IO::File->new($test_result_file_path, ">:encoding(utf8)");
+          die "File open failed: $test_result_file_path" if not defined $fh;
+          print $fh $result->{value}->{testResultsHtmlString};
+          undef $fh;
         });
       })->then (sub {
-        my $res = $_[0];
-        $all_tests_passed = $res->json->{value}->{allTestsPassed};
+        # If test HTML document has an element for screenshot (which is element with id `for-screenshot`),
+        # screenshot will be taken.
+        return $session->execute (q{
+          var screenshotTargetElem = document.querySelector("#for-screenshot");
+          if (screenshotTargetElem) {
+            screenshotTargetElem.style.display = "block";
+            document.querySelector("#qunit").style.display = "none";
+            return {
+              screenshotNeeded: true
+            };
+          } else {
+            return {
+              screenshotNeeded: false
+            };
+          }
+        })->then (sub {
+          my $res = $_[0];
+          if ($res->json->{value}->{screenshotNeeded}) {
+            return take_screenshot ($wd, $session->session_id)->then (sub {
+              my $image = $_[0];
 
-        my $fh = IO::File->new($test_result_file_path, ">:encoding(utf8)");
-        die "File open failed: $test_result_file_path" if not defined $fh;
-        print $fh $res->json->{value}->{testResultsHtmlString};
-        undef $fh;
+              my $fh = IO::File->new("$test_result_file_path.png", ">");
+              die "File open failed: $test_result_file_path" if not defined $fh;
+              print $fh $image;
+              undef $fh;
+            });
+          }
+        });
       });
       return $p->catch (sub {})->then (sub {
         return $session->close;
@@ -101,6 +126,47 @@ sub execute_test_html_file {
   })->to_cv->recv;
 
   return $all_tests_passed;
+}
+
+sub set_script_timeout {
+  my ($wd, $session_id, $timeout_ms) = @_;
+  return $wd->http_post (['session', $session_id, 'timeouts'], {
+    type => 'script',
+    ms => $timeout_ms,
+  })->then (sub {
+    my $res = $_[0];
+    die $res if $res->is_error;
+  });
+}
+
+sub execute_async {
+  my ($wd, $session_id, $script) = @_;
+  return $wd->http_post (['session', $session_id, 'execute_async'], {
+    script => qq{
+      // Callback for Execute Async Script command.
+      var callback = arguments[arguments.length - 1];
+      Promise.resolve().then(function () {
+        $script
+      }).then(function (value) { callback(value) });
+    },
+    args => [],
+  })->then (sub {
+    my $res = $_[0];
+    die $res if $res->is_error;
+    return $res->json;
+  });
+}
+
+sub take_screenshot {
+  my ($wd, $session_id) = @_;
+  return $wd->http_get (['session', $session_id, 'screenshot'])->then (sub {
+    my $res = $_[0];
+    die $res if $res->is_error;
+
+    my $image_base64 = $res->json->{value};
+    die 'Value of Base64-encoded image not defined' if not defined $image_base64;
+    return MIME::Base64::decode ($image_base64);
+  });
 }
 
 my $exit_code = run_tests();
