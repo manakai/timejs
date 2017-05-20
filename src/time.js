@@ -73,7 +73,7 @@ TER.prototype._setDateTimeAttr = function (el, date) {
   r += 'T' + ('0' + date.getUTCHours ()).slice (-2);
   r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
   r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
-  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
+  r += '.' + (date.getUTCMilliseconds () === 0 ? '0' : ('00' + date.getUTCMilliseconds ()).slice (-3).replace (/0+$/, ''));
   r += 'Z';
   el.setAttribute ('datetime', r);
 }; // TER.prototype._setDateTimeAttr
@@ -91,7 +91,7 @@ TER.prototype._setTimeAttr = function (el, date) {
   r = ('0' + date.getUTCHours ()).slice (-2);
   r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
   r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
-  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
+  r += '.' + (date.getUTCMilliseconds () === 0 ? '0' : ('00' + date.getUTCMilliseconds ()).slice (-3).replace (/0+$/, ''));
   el.setAttribute ('datetime', r);
 }; // TER.prototype._setTimeAttr
 
