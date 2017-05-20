@@ -10,9 +10,6 @@ TER.globalDateAndTimeStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})(?:[\u00
 /* HTML5 "date string" */
 TER.dateStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})$/;
 
-/* HTML5 "time string" */
-TER.timeStringPattern = /^([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?$/;
-
 TER.prototype._initialize = function () {
   var els = this.container.getElementsByTagName ('time');
   var elsL = els.length;
@@ -42,14 +39,6 @@ TER.prototype._replaceTimeContent = function (el) {
       this._setDateAttr (el, date);
     }
     this._setDateContent (el, date);
-  } else if (date.hasTime) {
-    if (!el.getAttribute ('title')) {
-      el.setAttribute ('title', el.textContent || this._getTextContent (el));
-    }
-    if (!el.getAttribute ('datetime')) {
-      this._setTimeAttr (el, date);
-    }
-    this._setTimeContent (el, date);
   }
 }; // TER.prototype._replaceTimeContent
 
@@ -60,10 +49,6 @@ TER.prototype._setDateTimeContent = function (el, date) {
 TER.prototype._setDateContent = function (el, date) {
   this._setTextContent (el, this._getLocal (date).toLocaleDateString ());
 }; // TER.prototype._setDateContent
-
-TER.prototype._setTimeContent = function (el, date) {
-  this._setTextContent (el, this._getLocal (date).toLocaleTimeString ());
-}; // TER.prototype._setTimeContent
 
 TER.prototype._setDateTimeAttr = function (el, date) {
   var r = '';
@@ -85,15 +70,6 @@ TER.prototype._setDateAttr = function (el, date) {
   r += '-' + ('0' + date.getUTCDate ()).slice (-2);
   el.setAttribute ('datetime', r);
 }; // TER.prototype._setDateAttr
-
-TER.prototype._setTimeAttr = function (el, date) {
-  var r = '';
-  r = ('0' + date.getUTCHours ()).slice (-2);
-  r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
-  r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
-  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
-  el.setAttribute ('datetime', r);
-}; // TER.prototype._setTimeAttr
 
 TER.prototype._getLocal = function (d) {
   /* Return a Date with same numbers of date/time, but in local timezone */
@@ -153,19 +129,6 @@ TER.prototype._getDate = function (el) {
       return new Date (NaN); // bad date error.
     }
     d.hasDate = true;
-    return d;
-  } else if (m = datetime.match (TER.timeStringPattern)) {
-    var d = new Date (Date.UTC (1970, 1 - 1, 1, m[1], m[2], m[3] || 0));
-    if (m[1] != d.getUTCHours () ||
-        m[2] != d.getUTCMinutes () ||
-        (m[3] || 0) != d.getUTCSeconds ()) {
-      return new Date (NaN); // bad time error.
-    }
-    if (m[4]) {
-      var ms = (m[4] + "000").substring (0, 3);
-      d.setMilliseconds (ms);
-    }
-    d.hasTime = true;
     return d;
   } else {
     return new Date (NaN);
