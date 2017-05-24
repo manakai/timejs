@@ -98,47 +98,6 @@
           "America/Los_Angeles:en-US": "1/1/100000",
           "America/Los_Angeles:ja-JP": "100000/1/1",
         },
-
-        "test-time-1": {
-          "UTC:en-US": "1:20:34 AM",
-          "UTC:ja-JP": "1:20:34",
-          "Asia/Tokyo:en-US": "1:20:34 AM",
-          "Asia/Tokyo:ja-JP": "1:20:34",
-          "America/Los_Angeles:en-US": "1:20:34 AM",
-          "America/Los_Angeles:ja-JP": "1:20:34",
-        },
-        "test-time-2": {
-          "UTC:en-US": "12:34:56 PM",
-          "UTC:ja-JP": "12:34:56",
-          "Asia/Tokyo:en-US": "12:34:56 PM",
-          "Asia/Tokyo:ja-JP": "12:34:56",
-          "America/Los_Angeles:en-US": "12:34:56 PM",
-          "America/Los_Angeles:ja-JP": "12:34:56",
-        },
-        "test-time-3": {
-          "UTC:en-US": "11:59:59 PM",
-          "UTC:ja-JP": "23:59:59",
-          "Asia/Tokyo:en-US": "11:59:59 PM",
-          "Asia/Tokyo:ja-JP": "23:59:59",
-          "America/Los_Angeles:en-US": "11:59:59 PM",
-          "America/Los_Angeles:ja-JP": "23:59:59",
-        },
-        "test-time-without-seconds-1": {
-          "UTC:en-US": "11:59:00 PM",
-          "UTC:ja-JP": "23:59:00",
-          "Asia/Tokyo:en-US": "11:59:00 PM",
-          "Asia/Tokyo:ja-JP": "23:59:00",
-          "America/Los_Angeles:en-US": "11:59:00 PM",
-          "America/Los_Angeles:ja-JP": "23:59:00",
-        },
-        "test-time-with-milliseconds-1": {
-          "UTC:en-US": "1:20:30 PM",
-          "UTC:ja-JP": "13:20:30",
-          "Asia/Tokyo:en-US": "1:20:30 PM",
-          "Asia/Tokyo:ja-JP": "13:20:30",
-          "America/Los_Angeles:en-US": "1:20:30 PM",
-          "America/Los_Angeles:ja-JP": "13:20:30",
-        },
       };
       Object.keys(testElemIdToExpectedValuesDictionary).forEach(function (testElemId) {
         var expectedValues = testElemIdToExpectedValuesDictionary[testElemId];
@@ -156,11 +115,6 @@
 
         "test-date-2": "1999-12-31",
         "test-date-after-y10k-1": "10000-01-01",
-
-        "test-time-1": "01:20:34.0",
-        "test-time-with-milliseconds-1": "13:20:30.123",
-        "test-time-with-milliseconds-2": "13:20:30.005",
-        "test-time-with-milliseconds-3": "13:20:30.05",
       };
       Object.keys(testElemIdToExpectedValuesDictionary).forEach(function (testElemId) {
         var dateTimeAttr = document.getElementById (testElemId).getAttribute ("datetime");
@@ -187,14 +141,6 @@
     <time id="test-date-2">1999-12-31</time>
     <time id="test-date-after-y10k-1">10000-01-01</time>
     <time id="test-date-after-y10k-2">100000-01-01</time>
-
-    <time id="test-time-1">01:20:34</time>
-    <time id="test-time-2">12:34:56</time>
-    <time id="test-time-3">23:59:59</time>
-    <time id="test-time-without-seconds-1">23:59</time>
-    <time id="test-time-with-milliseconds-1">13:20:30.123</time>
-    <time id="test-time-with-milliseconds-2">13:20:30.005</time>
-    <time id="test-time-with-milliseconds-3">13:20:30.050</time>
   </div>
 </body>
 </html>
