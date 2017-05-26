@@ -51,16 +51,7 @@ TER.prototype._setDateContent = function (el, date) {
 }; // TER.prototype._setDateContent
 
 TER.prototype._setDateTimeAttr = function (el, date) {
-  var r = '';
-  r = date.getUTCFullYear (); // JS does not support years 0001-0999
-  r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
-  r += '-' + ('0' + date.getUTCDate ()).slice (-2);
-  r += 'T' + ('0' + date.getUTCHours ()).slice (-2);
-  r += ':' + ('0' + date.getUTCMinutes ()).slice (-2);
-  r += ':' + ('0' + date.getUTCSeconds ()).slice (-2);
-  r += '.' + (date.getUTCMilliseconds () + '00').slice (2);
-  r += 'Z';
-  el.setAttribute ('datetime', r);
+  el.setAttribute ('datetime', date.toISOString ());
 }; // TER.prototype._setDateTimeAttr
 
 TER.prototype._setDateAttr = function (el, date) {
