@@ -104,6 +104,24 @@
         assert.equal(document.getElementById(testElemId).textContent, expectedValues[envKey]);
       });
     });
+
+    QUnit.test("The `datetime` attribute should be set", function (assert) {
+      var testElemIdToExpectedValuesDictionary = {
+        "test-dateTime-2": "2016-01-01T11:59:59.000Z",
+        "test-dateTime-with-offset-1": "2016-01-01T03:00:00.000Z",
+        "test-dateTime-with-milliseconds-1": "2016-01-01T00:00:00.123Z",
+        "test-dateTime-with-milliseconds-2": "2016-01-01T00:00:00.005Z",
+        "test-dateTime-with-milliseconds-3": "2016-01-01T00:00:00.050Z",
+
+        "test-date-2": "1999-12-31",
+        "test-date-after-y10k-1": "10000-01-01",
+      };
+      Object.keys(testElemIdToExpectedValuesDictionary).forEach(function (testElemId) {
+        var dateTimeAttr = document.getElementById (testElemId).getAttribute ("datetime");
+        var expectedValue = testElemIdToExpectedValuesDictionary[testElemId];
+        assert.equal (dateTimeAttr, expectedValue);
+      });
+    });
   </script>
 </head>
 <body>
@@ -115,6 +133,9 @@
     <time id="test-dateTime-4">2016-01-01T12:00:01Z</time>
     <time id="test-dateTime-5">2016-01-01T23:59:59Z</time>
     <time id="test-dateTime-with-offset-1">2016-01-01T12:00:00+09:00</time>
+    <time id="test-dateTime-with-milliseconds-1">2016-01-01T00:00:00.123Z</time>
+    <time id="test-dateTime-with-milliseconds-2">2016-01-01T00:00:00.005Z</time>
+    <time id="test-dateTime-with-milliseconds-3">2016-01-01T00:00:00.050Z</time>
 
     <time id="test-date-1">1000-01-01</time>
     <time id="test-date-2">1999-12-31</time>
