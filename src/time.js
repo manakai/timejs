@@ -47,7 +47,7 @@ TER.prototype._setDateTimeContent = function (el, date) {
 }; // TER.prototype._setDateTimeContent
 
 TER.prototype._setDateContent = function (el, date) {
-  this._setTextContent (el, this._getLocal (date).toLocaleDateString ());
+  this._setTextContent (el, date.toLocaleDateString (navigator.language, {"timeZone": "UTC"}));
 }; // TER.prototype._setDateContent
 
 TER.prototype._setDateTimeAttr = function (el, date) {
@@ -61,13 +61,6 @@ TER.prototype._setDateAttr = function (el, date) {
   r += '-' + ('0' + date.getUTCDate ()).slice (-2);
   el.setAttribute ('datetime', r);
 }; // TER.prototype._setDateAttr
-
-TER.prototype._getLocal = function (d) {
-  /* Return a Date with same numbers of date/time, but in local timezone */
-  return new Date (d.getUTCFullYear (), d.getUTCMonth (), d.getUTCDate (),
-      d.getUTCHours (), d.getUTCMinutes (), d.getUTCSeconds (),
-      d.getUTCMilliseconds ());
-}; // TER.prototype._getLocal
 
 TER.prototype._getDate = function (el) {
   var datetime = el.getAttribute ('datetime');
@@ -325,7 +318,7 @@ is a willful violation to the current HTML Living Standard.
 */
 
 /* ***** BEGIN LICENSE BLOCK *****
- * Copyright 2008-2015 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+ * Copyright 2008-2017 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or 
  * modify it under the same terms as Perl itself.
@@ -363,6 +356,7 @@ is a willful violation to the current HTML Living Standard.
  *
  * Contributor(s):
  *   Wakaba <wakaba@suikawiki.org>
+ *   Hatena <http://hatenacorp.jp/>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
