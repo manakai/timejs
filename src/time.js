@@ -106,7 +106,9 @@ TER.prototype._getDate = function (el) {
     if (m[1] < 100) {
       return new Date (NaN);
     }
-    var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], 0, 0, 0));
+    // For old browsers (which don't support the options parameter of `toLocaleDateString` method)
+    // the time value is set to 12:00, so that most cases are covered.
+    var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], 12, 0, 0));
     if (m[1] != d.getUTCFullYear () ||
         m[2] != d.getUTCMonth () + 1 ||
         m[3] != d.getUTCDate ()) {
