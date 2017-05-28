@@ -1,4 +1,5 @@
-Copyright 2008-2015 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+Copyright 2008-2017 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+Copyright 2017 Hatena <http://hatenacorp.jp/>.  All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -36,6 +37,7 @@ the Initial Developer. All Rights Reserved.
 
 Contributor(s):
   Wakaba <wakaba@suikawiki.org>
+  Hatena <http://hatenacorp.jp/>
 
 Alternatively, the contents of this file may be used under the terms of
 either the GNU General Public License Version 2 or later (the "GPL"), or
