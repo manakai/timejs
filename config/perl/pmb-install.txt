@@ -1,11 +1,13 @@
 AnyEvent~7.14
 Carp~1.38
-Digest::SHA~5.98
-Encode~2.93
-IO::File~1.14
+Digest::SHA~6.02
+Encode~2.98
+IO::File~1.39
 MIME::Base64~3.15
-Net::SSLeay~1.81
+Net::SSLeay~1.85
 Path::Tiny~0.104
 Test::More~1.302101
 Time::HiRes~1.9746
+Test::More~1.302136
+Time::HiRes~1.9758
 your~1.00
