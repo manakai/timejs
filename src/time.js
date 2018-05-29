@@ -43,7 +43,20 @@ TER.prototype._replaceTimeContent = function (el) {
 }; // TER.prototype._replaceTimeContent
 
 TER.prototype._setDateTimeContent = function (el, date) {
-  el.textContent = date.toLocaleString ();
+  var tzoffset = el.getAttribute ('data-tzoffset');
+  if (tzoffset !== null) {
+    tzoffset = parseFloat (tzoffset);
+    el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString ({
+      year: true,
+      month: true,
+      day: true,
+      hour: true,
+      minute: true,
+      second: true,
+    });
+  } else {
+    el.textContent = date.toLocaleString ();
+  }
 }; // TER.prototype._setDateTimeContent
 
 TER.prototype._setDateContent = function (el, date) {

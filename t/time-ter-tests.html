@@ -98,6 +98,31 @@
           "America/Los_Angeles:en-US": "1/1/100000",
           "America/Los_Angeles:ja-JP": "100000/1/1",
         },
+
+        tzo_1: {
+          "UTC:en-US": "12/20/2008, 7:27:00 PM",
+          "UTC:ja-JP": "2008/12/20 14:27:00",
+          "Asia/Tokyo:en-US": "12/20/2008, 7:27:00 PM",
+          "Asia/Tokyo:ja-JP": "2008/12/20 14:27:00",
+          "America/Los_Angeles:en-US": "12/20/2008, 7:27:00 PM",
+          "America/Los_Angeles:ja-JP": "2008/12/20 14:27:00",
+        },
+        tzo_2: {
+          "UTC:en-US": "12/20/2008, 2:27:00 AM",
+          "UTC:ja-JP": "2008/12/20 2:27:00",
+          "Asia/Tokyo:en-US": "12/20/2008, 2:27:00 AM",
+          "Asia/Tokyo:ja-JP": "2008/12/20 2:27:00",
+          "America/Los_Angeles:en-US": "12/20/2008, 2:27:00 AM",
+          "America/Los_Angeles:ja-JP": "2008/12/20 2:27:00",
+        },
+        tzo_3: {
+          "UTC:en-US": "12/21/2008, 4:27:00 AM",
+          "UTC:ja-JP": "2008/12/21 4:27:00",
+          "Asia/Tokyo:en-US": "12/21/2008, 4:27:00 AM",
+          "Asia/Tokyo:ja-JP": "2008/12/21 4:27:00",
+          "America/Los_Angeles:en-US": "12/21/2008, 4:27:00 AM",
+          "America/Los_Angeles:ja-JP": "2008/12/21 4:27:00",
+        },
       };
       Object.keys(testElemIdToExpectedValuesDictionary).forEach(function (testElemId) {
         var expectedValues = testElemIdToExpectedValuesDictionary[testElemId];
@@ -141,6 +166,10 @@
     <time id="test-date-2">1999-12-31</time>
     <time id="test-date-after-y10k-1">10000-01-01</time>
     <time id="test-date-after-y10k-2">100000-01-01</time>
+
+    <time id=tzo_1 data-tzoffset=0>2008-12-20T23:27+09:00</time>
+    <time id=tzo_2 data-tzoffset=-43200>2008-12-20T23:27+09:00</time>
+    <time id=tzo_3 data-tzoffset=50400>2008-12-20T23:27+09:00</time>
   </div>
 </body>
 </html>
