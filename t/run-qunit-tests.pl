@@ -19,7 +19,7 @@ sub run_tests {
       json_bytes2perl $ENV{TEST_WD_DESIRED_CAPABILITIES} : {};
 
   $test_results_path->mkpath;
-  my $exit_code = 0;
+  my @failed;
   for my $path ($root_path->child ('t')->children (qr/\.html\z/)) {
     my $rel_path = $path->relative($root_path);
     my $url = "file:///project/${rel_path}${query_string}";
@@ -30,10 +30,10 @@ sub run_tests {
       print "ok - $url -> $result_path\n";
     } else {
       print "not ok - $url -> $result_path\n";
-      $exit_code = 1;
+      push @failed, "$url -> $result_path";
     }
   }
-  return $exit_code;
+  return \@failed;
 }
 
 sub execute_test_html_file {
@@ -169,8 +169,14 @@ sub take_screenshot {
   });
 }
 
-my $exit_code = run_tests();
-exit $exit_code;
+my $faileds = run_tests();
+if (@$faileds) {
+  print "# Failed tests:\n";
+  for (@$faileds) {
+    print "# $_\n";
+  }
+}
+exit (@$faileds ? 1 : 0);
 
 =head1 LICENSE
 
