@@ -50,6 +50,7 @@ TEST_WD_URL="http://localhost:$wd_port" \
   TEST_RESULTS_DIR=$test_results_dir \
   timeout 600s $PERL $PROJECT_DIR_ABS/t/run-qunit-tests.pl
 test_result=$?
+echo "run-qunit-tests result: $test_result"
 
 $DOCKER logs $container_name > $docker_log_path
 $DOCKER kill $container_name
