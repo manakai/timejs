@@ -266,7 +266,7 @@ Usage:
       new TER (document.body);
     };
   </script>
-  <script src="time.js" charset=utf-8></script>
+  <script src="time.js"></script>
   
   <time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered appropriately in the user's locale -->
@@ -278,7 +278,7 @@ Usage:
       new TER.Delta (document.body);
     };
   </script>
-  <script src="time.js" charset=utf-8></script>
+  <script src="time.js"></script>
   
   <time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered like "2 minutes ago" in English or Japanese -->
