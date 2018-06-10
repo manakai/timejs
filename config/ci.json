@@ -7,7 +7,7 @@
       "quay.io/wakaba/chromedriver:chromium"
     ],
 
-    "build": ["make deps"],
+    "build": ["make test-deps"],
     "tests": ["make test"]
   }
 }
