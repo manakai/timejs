@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<title>time.js demo</title>
+
+<p>Default: <time>2008-12-20T23:27+09:00</time>.
+
+<p><code>data-tzoffset=0</code> = +00:00: <time data-tzoffset=0>2008-12-20T23:27+09:00</time>.
+<p><code>data-tzoffset=-43200</code> = -12:00: <time data-tzoffset=-43200>2008-12-20T23:27+09:00</time>.
+<p><code>data-tzoffset=-3600</code> = -01:00: <time data-tzoffset=-3600>2008-12-20T23:27+09:00</time>.
+<p><code>data-tzoffset=3600</code> = +01:00: <time data-tzoffset=3600>2008-12-20T23:27+09:00</time>.
+<p><code>data-tzoffset=32400</code> = +09:00: <time data-tzoffset=32400>2008-12-20T23:27+09:00</time>.
+<p><code>data-tzoffset=50400</code> = +14:00: <time data-tzoffset=50400>2008-12-20T23:27+09:00</time>.
+
+<script src=../src/time.js></script>
+<script>
+  new TER (document.body);
+</script>

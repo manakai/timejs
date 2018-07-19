@@ -14,14 +14,14 @@ esac
 
 # Notes
 # * On Firefox,
-#   * `Date.prototype.toLocaleString` method depends on locale of OS, and
+#   * `Date.prototype.toLocaleString` method depends on `intl.locale.requested` of prefs, and
 #   * `navigator.language` depends on `intl.accept_languages` of prefs.
 case $WD_LOCALE in
   "en-US") name_locale="en" ; wd_lang_env="en_US.utf-8" ; test_lang="en-US" ;
-    test_wd_desired_capabilities='{ "moz:firefoxOptions": { "prefs": { "intl.accept_languages": "en-US, en" } } }'
+    test_wd_desired_capabilities='{ "moz:firefoxOptions": { "prefs": { "intl.locale.requested": "en-US", "intl.accept_languages": "en-US, en" } } }'
     ;;
   "ja-JP") name_locale="ja" ; wd_lang_env="ja_JP.utf-8" ; test_lang="ja-JP" ;
-    test_wd_desired_capabilities='{ "moz:firefoxOptions": { "prefs": { "intl.accept_languages": "ja-JP, en-US, en" } } }'
+    test_wd_desired_capabilities='{ "moz:firefoxOptions": { "prefs": { "intl.locale.requested": "ja-JP", "intl.accept_languages": "ja-JP, en-US, en" } } }'
     ;;
   *) echo "Unknown \$WD_LOCALE: $WD_LOCALE"; exit 1 ;;
 esac
@@ -50,6 +50,7 @@ TEST_WD_URL="http://localhost:$wd_port" \
   TEST_RESULTS_DIR=$test_results_dir \
   timeout 600s $PERL $PROJECT_DIR_ABS/t/run-qunit-tests.pl
 test_result=$?
+echo "run-qunit-tests result: $test_result"
 
 $DOCKER logs $container_name > $docker_log_path
 $DOCKER kill $container_name

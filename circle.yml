@@ -1,32 +1,39 @@
-machine:
-  services:
-    - docker
-dependencies:
-  cache_directories:
-    - local
-    - deps
-  override:
-    - docker info
-    - docker pull quay.io/wakaba/firefoxdriver:stable :
-        background: true
-        timeout: 600
-
-    - make deps:
-        timeout: 600
-
-test:
-  override:
-    - make test:
-        parallel: true
-        timeout: 600
-
-deployment:
-  nightly:
-    branch: nightly
-    commands:
-      - curl -f -s -S --request POST --header "Authorization:token $GITHUB_ACCESS_TOKEN" --header "Content-Type:application/json" --data-binary "{\"base\":\"staging\",\"head\":\"`git rev-parse HEAD`\",\"commit_message\":\"auto-merge nightly into staging\"}" "https://api.github.com/repos/wakaba/timejs/merges"
-  staging:
-    branch: staging
-    commands:
-      - curl -f -s -S --request POST --header "Authorization:token $GITHUB_ACCESS_TOKEN" --header "Content-Type:application/json" --data-binary "{\"base\":\"master\",\"head\":\"`git rev-parse HEAD`\",\"commit_message\":\"auto-merge staging into master\"}" "https://api.github.com/repos/wakaba/timejs/merges"
-
+{
+   "dependencies" : {
+      "override" : [
+         "docker info",
+         {
+            "docker pull quay.io/wakaba/firefoxdriver:stable" : {
+               "background" : 1
+            }
+         },
+         "make deps"
+      ]
+   },
+   "deployment" : {
+      "nightly" : {
+         "branch" : "nightly",
+         "commands" : [
+            "git rev-parse HEAD > head.txt",
+            "curl -f -s -S --request POST --header \u0022Authorization:token $GITHUB_ACCESS_TOKEN\u0022 --header \u0022Content-Type:application/json\u0022 --data-binary \u0022{\u005C\u0022base\u005C\u0022:\u005C\u0022master\u005C\u0022,\u005C\u0022head\u005C\u0022:\u005C\u0022`cat head.txt`\u005C\u0022,\u005C\u0022commit_message\u005C\u0022:\u005C\u0022auto-merge $CIRCLE_BRANCH into master\u005C\u0022}\u0022 \u0022https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/merges\u0022"
+         ]
+      },
+      "staging" : {
+         "branch" : "staging",
+         "commands" : [
+            "git rev-parse HEAD > head.txt",
+            "curl -f -s -S --request POST --header \u0022Authorization:token $GITHUB_ACCESS_TOKEN\u0022 --header \u0022Content-Type:application/json\u0022 --data-binary \u0022{\u005C\u0022base\u005C\u0022:\u005C\u0022master\u005C\u0022,\u005C\u0022head\u005C\u0022:\u005C\u0022`cat head.txt`\u005C\u0022,\u005C\u0022commit_message\u005C\u0022:\u005C\u0022auto-merge $CIRCLE_BRANCH into master\u005C\u0022}\u0022 \u0022https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/merges\u0022"
+         ]
+      }
+   },
+   "machine" : {
+      "services" : [
+         "docker"
+      ]
+   },
+   "test" : {
+      "override" : [
+         "make test"
+      ]
+   }
+}

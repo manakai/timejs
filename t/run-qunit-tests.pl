@@ -4,7 +4,6 @@ use Path::Tiny;
 use lib glob path (__FILE__)->parent->parent->child ('t_deps/modules/*/lib');
 use IO::File;
 use JSON::PS;
-use MIME::Base64 ();
 use Promise;
 use Web::URL;
 use Web::Driver::Client::Connection;
@@ -19,7 +18,7 @@ sub run_tests {
       json_bytes2perl $ENV{TEST_WD_DESIRED_CAPABILITIES} : {};
 
   $test_results_path->mkpath;
-  my $exit_code = 0;
+  my @failed;
   for my $path ($root_path->child ('t')->children (qr/\.html\z/)) {
     my $rel_path = $path->relative($root_path);
     my $url = "file:///project/${rel_path}${query_string}";
@@ -30,10 +29,10 @@ sub run_tests {
       print "ok - $url -> $result_path\n";
     } else {
       print "not ok - $url -> $result_path\n";
-      $exit_code = 1;
+      push @failed, "$url -> $result_path";
     }
   }
-  return $exit_code;
+  return \@failed;
 }
 
 sub execute_test_html_file {
@@ -46,11 +45,9 @@ sub execute_test_html_file {
     my $p = $wd->new_session (desired => $wd_desired_capabilities)->then (sub {
       my $session = $_[0];
       my $p = Promise->resolve (1)->then (sub {
-        return set_script_timeout ($wd, $session->session_id, 5000);
-      })->then (sub {
         return $session->go (Web::URL->parse_string ($test_url));
       })->then (sub {
-        return execute_async ($wd, $session->session_id, q{
+        return $session->execute (q{
           return Promise.resolve().then(function () {
             var bannerElem = document.querySelector("#qunit-banner");
             var testFinished = bannerElem.classList.contains("qunit-pass") || bannerElem.classList.contains("qunit-fail");
@@ -77,13 +74,13 @@ sub execute_test_html_file {
                   "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
             };
           });
-        })->then (sub {
+        }, [], timeout => 5)->then (sub {
           my $result = $_[0];
-          $all_tests_passed = $result->{value}->{allTestsPassed};
+          $all_tests_passed = $result->json->{value}->{allTestsPassed};
 
           my $fh = IO::File->new($test_result_file_path, ">:encoding(utf8)");
           die "File open failed: $test_result_file_path" if not defined $fh;
-          print $fh $result->{value}->{testResultsHtmlString};
+          print $fh $result->json->{value}->{testResultsHtmlString};
           undef $fh;
         });
       })->then (sub {
@@ -105,7 +102,7 @@ sub execute_test_html_file {
         })->then (sub {
           my $res = $_[0];
           if ($res->json->{value}->{screenshotNeeded}) {
-            return take_screenshot ($wd, $session->session_id)->then (sub {
+            return $session->screenshot->then (sub {
               my $image = $_[0];
 
               my $fh = IO::File->new("$test_result_file_path.png", ">");
@@ -128,53 +125,21 @@ sub execute_test_html_file {
   return $all_tests_passed;
 }
 
-sub set_script_timeout {
-  my ($wd, $session_id, $timeout_ms) = @_;
-  return $wd->http_post (['session', $session_id, 'timeouts'], {
-    type => 'script',
-    ms => $timeout_ms,
-  })->then (sub {
-    my $res = $_[0];
-    die $res if $res->is_error;
-  });
+my $faileds = run_tests();
+if (@$faileds) {
+  print "# Failed tests:\n";
+  for (@$faileds) {
+    print "# $_\n";
+  }
+} else {
+  print "# No failed test.\n";
 }
-
-sub execute_async {
-  my ($wd, $session_id, $script) = @_;
-  return $wd->http_post (['session', $session_id, 'execute_async'], {
-    script => qq{
-      // Callback for Execute Async Script command.
-      var callback = arguments[arguments.length - 1];
-      Promise.resolve().then(function () {
-        $script
-      }).then(function (value) { callback(value) });
-    },
-    args => [],
-  })->then (sub {
-    my $res = $_[0];
-    die $res if $res->is_error;
-    return $res->json;
-  });
-}
-
-sub take_screenshot {
-  my ($wd, $session_id) = @_;
-  return $wd->http_get (['session', $session_id, 'screenshot'])->then (sub {
-    my $res = $_[0];
-    die $res if $res->is_error;
-
-    my $image_base64 = $res->json->{value};
-    die 'Value of Base64-encoded image not defined' if not defined $image_base64;
-    return MIME::Base64::decode ($image_base64);
-  });
-}
-
-my $exit_code = run_tests();
-exit $exit_code;
+exit (@$faileds ? 1 : 0);
 
 =head1 LICENSE
 
-Copyright 2017 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+Copyright 2017-2018 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+
 Copyright 2017 Hatena <http://hatenacorp.jp/>.  All rights reserved.
 
 This program is free software; you can redistribute it and/or
@@ -198,7 +163,7 @@ Version: MPL 1.1/GPL 2.0/LGPL 2.1
 The contents of this file are subject to the Mozilla Public License Version
 1.1 (the "License"); you may not use this file except in compliance with
 the License. You may obtain a copy of the License at
-<http://www.mozilla.org/MPL/>
+<https://www.mozilla.org/MPL/>
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
