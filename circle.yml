@@ -3,11 +3,11 @@
       "override" : [
          "docker info",
          {
-            "docker pull quay.io/wakaba/firefoxdriver:stable" : {
+            "docker pull quay.io/wakaba/firefoxdriver:stable && docker pull quay.io/wakaba/chromedriver:chromium" : {
                "background" : 1
             }
          },
-         "make deps"
+         "make test-deps"
       ]
    },
    "deployment" : {
