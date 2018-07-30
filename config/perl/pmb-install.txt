@@ -1,11 +1,11 @@
-AnyEvent::Handle
+AnyEvent::Socket
 Carp~1.38
 Digest::SHA~6.02
 Encode~2.98
 IO::File~1.39
 MIME::Base64~3.15
 Net::SSLeay~1.85
-Path::Tiny~0.106
+Path::Tiny~0.108
 Test::More~1.302138
 Time::HiRes~1.9758
 your~1.00
