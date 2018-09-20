@@ -16,9 +16,17 @@ TER.prototype._initialize = function () {
   for (var i = 0; i < elsL; i++) {
     var el = els[i];
     if (!el) break; /* If <time> is nested */
-    this._replaceTimeContent (el);
+    this._initTimeElement (el);
   }
 }; // TER.prototype._initialize
+
+TER.prototype._initTimeElement = function (el) {
+  var self = this;
+  this._replaceTimeContent (el);
+  new MutationObserver (function (mutations) {
+    self._replaceTimeContent (el);
+  }).observe (el, {attributeFilter: ['data-tzoffset']});
+}; // _initTimeElement
 
 TER.prototype._replaceTimeContent = function (el) {
   var date = this._getDate (el);
