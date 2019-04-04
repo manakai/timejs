@@ -11,12 +11,16 @@ TER.globalDateAndTimeStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})(?:[\u00
 TER.dateStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})$/;
 
 TER.prototype._initialize = function () {
-  var els = this.container.getElementsByTagName ('time');
-  var elsL = els.length;
-  for (var i = 0; i < elsL; i++) {
-    var el = els[i];
-    if (!el) break; /* If <time> is nested */
-    this._initTimeElement (el);
+  if (this.container.localName === 'time') {
+    this._initTimeElement (this.container);
+  } else {
+    var els = this.container.getElementsByTagName ('time');
+    var elsL = els.length;
+    for (var i = 0; i < elsL; i++) {
+      var el = els[i];
+      if (!el) break; /* If <time> is nested */
+      this._initTimeElement (el);
+    }
   }
 }; // TER.prototype._initialize
 
@@ -321,7 +325,7 @@ is a willful violation to the current HTML Living Standard.
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright 2008-2018 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+ * Copyright 2008-2019 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
  *
  * Copyright 2017 Hatena <http://hatenacorp.jp/>.  All rights reserved.
  *
