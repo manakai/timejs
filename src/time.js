@@ -3,12 +3,179 @@ function TER (c) {
   this._initialize ();
 } // TER
 
-/* Based on HTML5 "global date and time string", but allows
-Unicode 5.1.0 White_Space where it was allowed in earlier draft of HTML5. */
-TER.globalDateAndTimeStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})(?:[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+(?:T[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*)?|T[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*)([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*(?:Z|([+-])([0-9]{2}):([0-9]{2}))$/;
+(function () {
 
-/* HTML5 "date string" */
-TER.dateStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})$/;
+  /* Based on HTML Standard's definition of "global date and time
+     string", but allows Unicode 5.1.0 White_Space where it was
+     allowed in earlier drafts of HTML5. */
+  var globalDateAndTimeStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})(?:[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+(?:T[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*)?|T[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*)([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]+))?)?[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]*(?:Z|([+-])([0-9]{2}):([0-9]{2}))$/;
+
+  /* HTML Standard's definition of "date string" */
+  var dateStringPattern = /^([0-9]{4,})-([0-9]{2})-([0-9]{2})$/;
+
+  function parseTimeElement (el) {
+    var datetime = el.getAttribute ('datetime');
+    if (datetime === null) {
+      datetime = el.textContent;
+
+      /* Unicode 5.1.0 White_Space */
+      datetime = datetime.replace
+                     (/^[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, '')
+                         .replace
+                     (/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+$/, '');
+    }
+
+    if (m = datetime.match (globalDateAndTimeStringPattern)) {
+      if (m[1] < 100) {
+        return new Date (NaN);
+      } else if (m[8] && (m[9] > 23 || m[9] < -23)) {
+        return new Date (NaN);
+      } else if (m[8] && m[10] > 59) {
+        return new Date (NaN);
+      }
+      var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], m[4], m[5], m[6] || 0));
+      if (m[1] != d.getUTCFullYear () ||
+          m[2] != d.getUTCMonth () + 1 ||
+          m[3] != d.getUTCDate () ||
+          m[4] != d.getUTCHours () ||
+          m[5] != d.getUTCMinutes () ||
+          (m[6] || 0) != d.getUTCSeconds ()) {
+        return new Date (NaN); // bad date error.
+      }
+      if (m[7]) {
+        var ms = (m[7] + "000").substring (0, 3);
+        d.setMilliseconds (ms);
+      }
+      if (m[9] != null) {
+        var offset = parseInt (m[9], 10) * 60 + parseInt (m[10], 10);
+        offset *= 60 * 1000;
+        if (m[8] == '-') offset *= -1;
+        d = new Date (d.valueOf () - offset);
+      }
+      d.hasDate = true;
+      d.hasTime = true;
+      d.hasTimezone = true;
+      return d;
+    } else if (m = datetime.match (dateStringPattern)) {
+      if (m[1] < 100) {
+        return new Date (NaN);
+      }
+      /* For old browsers (which don't support the options parameter
+         of `toLocaleDateString` method) the time value is set to
+         12:00, so that most cases are covered. */
+      var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], 12, 0, 0));
+      if (m[1] != d.getUTCFullYear () ||
+          m[2] != d.getUTCMonth () + 1 ||
+          m[3] != d.getUTCDate ()) {
+        return new Date (NaN); // bad date error.
+      }
+      d.hasDate = true;
+      return d;
+    } else {
+      return new Date (NaN);
+    }
+  } // parseTimeElement
+
+  function setDateContent (el, date) {
+    if (!el.getAttribute ('title')) {
+      el.setAttribute ('title', el.textContent);
+    }
+    if (!el.getAttribute ('datetime')) {
+      var r = '';
+      r = date.getUTCFullYear (); // JS does not support years 0001-0999
+      r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
+      r += '-' + ('0' + date.getUTCDate ()).slice (-2);
+      el.setAttribute ('datetime', r);
+    }
+    el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
+  } // setDateContent
+
+  function setDateTimeContent (el, date) {
+    if (!el.getAttribute ('title')) {
+      el.setAttribute ('title', el.textContent);
+    }
+    if (!el.getAttribute ('datetime')) {
+      // XXX If year is outside of 1000-9999, ...
+      el.setAttribute ('datetime', date.toISOString ());
+    }
+
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString ({
+        year: true,
+        month: true,
+        day: true,
+        hour: true,
+        minute: true,
+        second: true,
+      });
+    } else {
+      el.textContent = date.toLocaleString ();
+    }
+  } // setDateTimeContent
+
+  function setAmbtimeContent (el, date) {
+    if (!el.getAttribute ('title')) {
+      el.setAttribute ('title', el.textContent);
+    }
+    if (!el.getAttribute ('datetime')) {
+      // XXX If year is outside of 1000-9999, ...
+      el.setAttribute ('datetime', date.toISOString ());
+    }
+
+    var text = TER.Delta.prototype.text;
+    var dateValue = date.valueOf ();
+    var nowValue = new Date ().valueOf ();
+
+    var diff = dateValue - nowValue;
+    if (diff < 0) diff = -diff;
+
+    if (diff == 0) {
+      el.textContent = text.now ();
+      return;
+    }
+
+    var v;
+    diff = Math.floor (diff / 1000);
+    if (diff < 60) {
+      v = text.second (diff);
+    } else {
+      var f = diff;
+      diff = Math.floor (diff / 60);
+      if (diff < 60) {
+        v = text.minute (diff);
+        f -= diff * 60;
+        if (f > 0) v += text.sep () + text.second (f);
+      } else {
+        f = diff;
+        diff = Math.floor (diff / 60);
+        if (diff < 50) {
+          v = text.hour (diff);
+          f -= diff * 60;
+          if (f > 0) v += text.sep () + text.minute (f);
+        } else {
+          f = diff;
+          diff = Math.floor (diff / 24);
+          if (diff < 100) {
+            v = text.day (diff);
+            f -= diff * 24;
+            if (f > 0) v += text.sep () + text.hour (f);
+          } else {
+            el.textContent = date.toLocaleString ();
+            return;
+          }
+        }
+      }
+    }
+
+    if (dateValue < nowValue) {
+      v = text.before (v);
+    } else {
+      v = text.after (v);
+    }
+    el.textContent = v;
+  } // setAmbtimeContent
 
 TER.prototype._initialize = function () {
   if (this.container.localName === 'time') {
@@ -32,170 +199,32 @@ TER.prototype._initTimeElement = function (el) {
   }).observe (el, {attributeFilter: ['data-tzoffset']});
 }; // _initTimeElement
 
-TER.prototype._replaceTimeContent = function (el) {
-  var date = this._getDate (el);
-  if (isNaN (date.valueOf ())) return;
-  if (date.hasTimezone) { /* full date */
-    if (!el.getAttribute ('title')) {
-      el.setAttribute ('title', el.textContent);
+  TER.prototype._replaceTimeContent = function (el) {
+    var date = parseTimeElement (el);
+    if (isNaN (date.valueOf ())) return;
+    if (date.hasTimezone) { /* full date */
+      setDateTimeContent (el, date);
+    } else if (date.hasDate) {
+      setDateContent (el, date);
     }
-    if (!el.getAttribute ('datetime')) {
-      // XXX If year is outside of 1000-9999, ...
-      el.setAttribute ('datetime', date.toISOString ());
+  }; // _replaceTimeContent
+
+  TER.Delta = function (c) {
+    TER.apply (this, [c]);
+  }; // TER.Delta
+  TER.Delta.prototype = new TER (document.createElement ('time'));
+
+  TER.Delta.prototype._replaceTimeContent = function (el) {
+    var date = parseTimeElement (el);
+    if (isNaN (date.valueOf ())) return;
+    if (date.hasTimezone) { /* full date */
+      setAmbtimeContent (el, date);
+    } else if (date.hasDate) {
+      setDateContent (el, date);
     }
-    this._setDateTimeContent (el, date);
-  } else if (date.hasDate) {
-    if (!el.getAttribute ('title')) {
-      el.setAttribute ('title', el.textContent);
-    }
-    if (!el.getAttribute ('datetime')) {
-      var r = '';
-      r = date.getUTCFullYear (); // JS does not support years 0001-0999
-      r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
-      r += '-' + ('0' + date.getUTCDate ()).slice (-2);
-      el.setAttribute ('datetime', r);
-    }
-    el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
-  }
-}; // TER.prototype._replaceTimeContent
+  }; // _replaceTimeContent
 
-TER.prototype._setDateTimeContent = function (el, date) {
-  var tzoffset = el.getAttribute ('data-tzoffset');
-  if (tzoffset !== null) {
-    tzoffset = parseFloat (tzoffset);
-    el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString ({
-      year: true,
-      month: true,
-      day: true,
-      hour: true,
-      minute: true,
-      second: true,
-    });
-  } else {
-    el.textContent = date.toLocaleString ();
-  }
-}; // TER.prototype._setDateTimeContent
-
-TER.prototype._getDate = function (el) {
-  var datetime = el.getAttribute ('datetime');
-  if (datetime === null) {
-    datetime = el.textContent;
-
-    /* Unicode 5.1.0 White_Space */
-    datetime = datetime.replace
-                   (/^[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, '')
-                       .replace
-                   (/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+$/, '');
-  }
-
-  if (m = datetime.match (TER.globalDateAndTimeStringPattern)) {
-    if (m[1] < 100) {
-      return new Date (NaN);
-    } else if (m[8] && (m[9] > 23 || m[9] < -23)) {
-      return new Date (NaN);
-    } else if (m[8] && m[10] > 59) {
-      return new Date (NaN);
-    }
-    var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], m[4], m[5], m[6] || 0));
-    if (m[1] != d.getUTCFullYear () ||
-        m[2] != d.getUTCMonth () + 1 ||
-        m[3] != d.getUTCDate () ||
-        m[4] != d.getUTCHours () ||
-        m[5] != d.getUTCMinutes () ||
-        (m[6] || 0) != d.getUTCSeconds ()) {
-      return new Date (NaN); // bad date error.
-    }
-    if (m[7]) {
-      var ms = (m[7] + "000").substring (0, 3);
-      d.setMilliseconds (ms);
-    }
-    if (m[9] != null) {
-      var offset = parseInt (m[9], 10) * 60 + parseInt (m[10], 10);
-      offset *= 60 * 1000;
-      if (m[8] == '-') offset *= -1;
-      d = new Date (d.valueOf () - offset);
-    }
-    d.hasDate = true;
-    d.hasTime = true;
-    d.hasTimezone = true;
-    return d;
-  } else if (m = datetime.match (TER.dateStringPattern)) {
-    if (m[1] < 100) {
-      return new Date (NaN);
-    }
-    // For old browsers (which don't support the options parameter of `toLocaleDateString` method)
-    // the time value is set to 12:00, so that most cases are covered.
-    var d = new Date (Date.UTC (m[1], m[2] - 1, m[3], 12, 0, 0));
-    if (m[1] != d.getUTCFullYear () ||
-        m[2] != d.getUTCMonth () + 1 ||
-        m[3] != d.getUTCDate ()) {
-      return new Date (NaN); // bad date error.
-    }
-    d.hasDate = true;
-    return d;
-  } else {
-    return new Date (NaN);
-  }
-}; // TER.prototype._getDate
-
-TER.Delta = function (c) {
-  TER.apply (this, [c]);
-}; // TER.Delta
-
-TER.Delta.prototype = new TER (document.createElement ('time'));
-
-TER.Delta.prototype._setDateTimeContent = function (el, date) {
-  var dateValue = date.valueOf ();
-  var nowValue = new Date ().valueOf ();
-
-  var diff = dateValue - nowValue;
-  if (diff < 0) diff = -diff;
-
-  if (diff == 0) {
-    el.textContent = this.text.now ();
-    return;
-  }
-
-  var v;
-  diff = Math.floor (diff / 1000);
-  if (diff < 60) {
-    v = this.text.second (diff);
-  } else {
-    var f = diff;
-    diff = Math.floor (diff / 60);
-    if (diff < 60) {
-      v = this.text.minute (diff);
-      f -= diff * 60;
-      if (f > 0) v += this.text.sep () + this.text.second (f);
-    } else {
-      f = diff;
-      diff = Math.floor (diff / 60);
-      if (diff < 50) {
-        v = this.text.hour (diff);
-        f -= diff * 60;
-        if (f > 0) v += this.text.sep () + this.text.minute (f);
-      } else {
-        f = diff;
-        diff = Math.floor (diff / 24);
-        if (diff < 100) {
-          v = this.text.day (diff);
-          f -= diff * 24;
-          if (f > 0) v += this.text.sep () + this.text.hour (f);
-        } else {
-          el.textContent = date.toLocaleString ();
-          return;
-        }
-      }
-    }
-  }
-
-  if (dateValue < nowValue) {
-    v = this.text.before (v);
-  } else {
-    v = this.text.after (v);
-  }
-  el.textContent = v;
-}; // TER.Delta.prototype._setDateTimeContent
+}) ();
 
 TER.Delta.Text = {};
 
