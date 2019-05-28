@@ -40,7 +40,8 @@ TER.prototype._replaceTimeContent = function (el) {
       el.setAttribute ('title', el.textContent);
     }
     if (!el.getAttribute ('datetime')) {
-      this._setDateTimeAttr (el, date);
+      // XXX If year is outside of 1000-9999, ...
+      el.setAttribute ('datetime', date.toISOString ());
     }
     this._setDateTimeContent (el, date);
   } else if (date.hasDate) {
@@ -48,9 +49,13 @@ TER.prototype._replaceTimeContent = function (el) {
       el.setAttribute ('title', el.textContent);
     }
     if (!el.getAttribute ('datetime')) {
-      this._setDateAttr (el, date);
+      var r = '';
+      r = date.getUTCFullYear (); // JS does not support years 0001-0999
+      r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
+      r += '-' + ('0' + date.getUTCDate ()).slice (-2);
+      el.setAttribute ('datetime', r);
     }
-    this._setDateContent (el, date);
+    el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
   }
 }; // TER.prototype._replaceTimeContent
 
@@ -71,29 +76,16 @@ TER.prototype._setDateTimeContent = function (el, date) {
   }
 }; // TER.prototype._setDateTimeContent
 
-TER.prototype._setDateContent = function (el, date) {
-  el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
-}; // TER.prototype._setDateContent
-
-TER.prototype._setDateTimeAttr = function (el, date) {
-  el.setAttribute ('datetime', date.toISOString ());
-}; // TER.prototype._setDateTimeAttr
-
-TER.prototype._setDateAttr = function (el, date) {
-  var r = '';
-  r = date.getUTCFullYear (); // JS does not support years 0001-0999
-  r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
-  r += '-' + ('0' + date.getUTCDate ()).slice (-2);
-  el.setAttribute ('datetime', r);
-}; // TER.prototype._setDateAttr
-
 TER.prototype._getDate = function (el) {
   var datetime = el.getAttribute ('datetime');
-  if (datetime) { /* NOTE: IE7 does not have hasAttribute */
-    datetime = el.getAttribute ('datetime');
-  } else {
+  if (datetime === null) {
     datetime = el.textContent;
-    datetime = this._trimWhiteSpace (datetime);
+
+    /* Unicode 5.1.0 White_Space */
+    datetime = datetime.replace
+                   (/^[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, '')
+                       .replace
+                   (/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+$/, '');
   }
 
   if (m = datetime.match (TER.globalDateAndTimeStringPattern)) {
@@ -145,14 +137,6 @@ TER.prototype._getDate = function (el) {
     return new Date (NaN);
   }
 }; // TER.prototype._getDate
-
-TER.prototype._trimWhiteSpace = function (s) {
-  /* Unicode 5.1.0 White_Space */
-  return s.replace
-      (/^[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, '')
-      .replace
-      (/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+$/, '');
-}; // TER.prototype._trimWhiteSpace
 
 TER.Delta = function (c) {
   TER.apply (this, [c]);
