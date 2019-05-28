@@ -25,6 +25,17 @@
 
     var e2 = this.currentScript.querySelector ('time.asis');
     this.assert.equal (e2.textContent, '');
+
+    e.setAttribute ('datetime', '2014-05-01T01:12:51Z');
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "5/1/2014, 1:51:53 AM",
+      "UTC:ja-JP": "2014/5/1 1:51:53",
+      "Asia/Tokyo:en-US": "5/1/2014, 1:51:53 AM",
+      "Asia/Tokyo:ja-JP": "2014/5/1 1:51:53",
+      "America/Los_Angeles:en-US": "5/1/2014, 1:51:53 AM",
+      "America/Los_Angeles:ja-JP": "2014/5/1 1:51:53",
+    }[this.env]);
   </test-code>
   
   <test-code name="scripted">

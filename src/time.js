@@ -246,7 +246,7 @@ TER.prototype._initialize = function () {
       replaceContent (el);
       new MutationObserver (function (mutations) {
         replaceContent (el);
-      }).observe (el, {attributeFilter: ['data-tzoffset']});
+      }).observe (el, {attributeFilter: ['datetime', 'data-tzoffset']});
     }; // op
     
     var mo = new MutationObserver (function (mutations) {
@@ -352,6 +352,9 @@ the script's execution, is processed appropriately.  E.g.:
   <!-- Will be rendered as a date and time in the user's locale
        dependent format, such as "20 December 2008 11:27 PM" -->
 
+When the |time| element's |datetime| or |data-tzoffset| attribute
+value is changed, the element's content is updated appropriately.
+(Note that the element's content's mutation is ignored.)
 Alternatively:
 
   <script>
