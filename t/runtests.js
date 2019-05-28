@@ -38,6 +38,9 @@
     document.body.appendChild (script);
   });
 
+  var iframe = document.body.appendChild (document.createElement('iframe'));
+  iframe.hidden = true;
+  var sT = iframe.contentWindow.setTimeout;
   qunitLoaded.then (function () {
     QUnit.config.current = {ignoreGlobalErrors: true};
     document.querySelectorAll ('test-code').forEach (function (e) {
@@ -46,7 +49,7 @@
         var code = new AsyncFunction (e.textContent);
         var context = {
           currentScript: e,
-          wait: (n) => new Promise ((ok) => setTimeout (ok, n || 0)),
+          wait: (n) => new Promise ((ok) => sT (ok, n || 0)),
           assertEqualError: function (actual, expected, name) {
             this.assert.throws (() => { throw actual }, expected, name);
           }, // assertEqualError

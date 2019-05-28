@@ -232,10 +232,19 @@ TER.prototype._initialize = function () {
     var replaceContent = function (el) {
       var date = parseTimeElement (el);
       if (isNaN (date.valueOf ())) return;
-      if (date.hasTimezone) { /* full date */
+      var format = el.getAttribute ('data-format');
+      if (format === 'datetime') {
         setDateTimeContent (el, date);
-      } else if (date.hasDate) {
+      } else if (format === 'date') {
         setDateContent (el, date);
+      } else if (format === 'ambtime') {
+        setAmbtimeContent (el, date);
+      } else { // auto
+        if (date.hasTimezone) { /* full date */
+          setDateTimeContent (el, date);
+        } else if (date.hasDate) {
+          setDateContent (el, date);
+        }
       }
     }; // replaceContent
     
@@ -352,27 +361,29 @@ the script's execution, is processed appropriately.  E.g.:
   <!-- Will be rendered as a date and time in the user's locale
        dependent format, such as "20 December 2008 11:27 PM" -->
 
+  <time>2008-12-20</time>
+  <time data-format=date>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date in the user's locale dependent
+       format, such as "20 December 2008" -->
+
+  <time data-format=ambtime>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as an "ambtime" in English or Japanese
+       depending on the user's language preference, such as "2 hours
+       ago" -->
+
 When the |time| element's |datetime| or |data-tzoffset| attribute
 value is changed, the element's content is updated appropriately.
 (Note that the element's content's mutation is ignored.)
-Alternatively:
 
-  <script>
-    window.onload = function () {
-      new TER.Delta (document.body);
-    };
-  </script>
-  <script src="time.js"></script>
-  
-  <time>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered like "2 minutes ago" in English or Japanese -->
-
-For compatibility with previous versions of this script, if there is
-no |data-selector| attribute, the script does nothing by default,
-except for defining the |TER| global property.  By invoking |new TER
-(/element/)| constructor, where /element/ is an element node, any
-|time| element in the /element/ subtree (or /element/ itself if it is
-a |time| element) is processed appropriately.
+For backward compatibility with previous versions of this script, if
+there is no |data-selector| attribute, the script does nothing by
+default, except for defining the |TER| global property.  By invoking
+|new TER (/element/)| or |new TER.Delta (/element/)| constructor,
+where /element/ is an element node, any |time| element in the
+/element/ subtree (or /element/ itself if it is a |time| element) is
+processed appropriately.  The |TER| constructor is equivalent to no
+|data-format| attribute and the |TER.Delta| constructor is equivalent
+to |data-format=ambtime|.
 
 Repository:
 
