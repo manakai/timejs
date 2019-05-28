@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+  <script src="http://sinonjs.org/releases/sinon-2.1.0.js"></script>
+</head>
+<body>
+  <test-code name="constructor with time element (TER)">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2012-05-01T01:12:51Z');
+    e.setAttribute ('data-tzoffset', '2342');
+    new TER (e);
+    await this.wait ();
+    
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "5/1/2012, 1:51:53 AM",
+      "UTC:ja-JP": "2012/5/1 1:51:53",
+      "Asia/Tokyo:en-US": "5/1/2012, 1:51:53 AM",
+      "Asia/Tokyo:ja-JP": "2012/5/1 1:51:53",
+      "America/Los_Angeles:en-US": "5/1/2012, 1:51:53 AM",
+      "America/Los_Angeles:ja-JP": "2012/5/1 1:51:53",
+    }[this.env]);
+  </test-code>
+
+  <test-code name="constructor with time element (TER.Delta)">
+    var clock = sinon.useFakeTimers(Date.parse("2016-01-02T00:00:00Z"));
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2015-09-24T00:00:01Z');
+    new TER.Delta (e);
+    
+    this.assert.equal (e.textContent, {
+          "UTC:en-US": "99 days 23 hours ago",
+          "UTC:ja-JP": "99日23時間前",
+          "Asia/Tokyo:en-US": "99 days 23 hours ago",
+          "Asia/Tokyo:ja-JP": "99日23時間前",
+          "America/Los_Angeles:en-US": "99 days 23 hours ago",
+          "America/Los_Angeles:ja-JP": "99日23時間前",
+    }[this.env]);
+  </test-code>
+
+  <script src=runtests.js></script>
+</body>
+</html>
+<!--
+
+Per CC0 <https://creativecommons.org/publicdomain/zero/1.0/>, to the
+extent possible under law, the author has waived all copyright and
+related or neighboring rights to this work.
+
+-->
