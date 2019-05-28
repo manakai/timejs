@@ -162,8 +162,7 @@ function TER (c) {
             f -= diff * 24;
             if (f > 0) v += text.sep () + text.hour (f);
           } else {
-            el.textContent = date.toLocaleString ();
-            return;
+            return setDateTimeContent (el, date);
           }
         }
       }
@@ -191,13 +190,16 @@ TER.prototype._initialize = function () {
   }
 }; // TER.prototype._initialize
 
-TER.prototype._initTimeElement = function (el) {
-  var self = this;
-  this._replaceTimeContent (el);
-  new MutationObserver (function (mutations) {
-    self._replaceTimeContent (el);
-  }).observe (el, {attributeFilter: ['data-tzoffset']});
-}; // _initTimeElement
+  TER.prototype._initTimeElement = function (el) {
+    if (el.terUpgraded) return;
+    el.terUpgraded = true;
+    
+    var self = this;
+    this._replaceTimeContent (el);
+    new MutationObserver (function (mutations) {
+      self._replaceTimeContent (el);
+    }).observe (el, {attributeFilter: ['data-tzoffset']});
+  }; // _initTimeElement
 
   TER.prototype._replaceTimeContent = function (el) {
     var date = parseTimeElement (el);
@@ -224,6 +226,43 @@ TER.prototype._initTimeElement = function (el) {
     }
   }; // _replaceTimeContent
 
+  (function (selector) {
+    if (!selector) return;
+
+    var replaceContent = function (el) {
+      var date = parseTimeElement (el);
+      if (isNaN (date.valueOf ())) return;
+      if (date.hasTimezone) { /* full date */
+        setDateTimeContent (el, date);
+      } else if (date.hasDate) {
+        setDateContent (el, date);
+      }
+    }; // replaceContent
+    
+    var op = function (el) {
+      if (el.terUpgraded) return;
+      el.terUpgraded = true;
+
+      replaceContent (el);
+      new MutationObserver (function (mutations) {
+        replaceContent (el);
+      }).observe (el, {attributeFilter: ['data-tzoffset']});
+    }; // op
+    
+    var mo = new MutationObserver (function (mutations) {
+      mutations.forEach (function (m) {
+        Array.prototype.forEach.call (m.addedNodes, function (e) {
+          if (e.nodeType === e.ELEMENT_NODE) {
+            if (e.matches && e.matches (selector)) op (e);
+            Array.prototype.forEach.call (e.querySelectorAll (selector), op);
+          }
+        });
+      });
+    });
+    mo.observe (document, {childList: true, subtree: true});
+    Array.prototype.forEach.call (document.querySelectorAll (selector), op);
+
+  }) (document.currentScript.getAttribute ('data-selector'));
 }) ();
 
 TER.Delta.Text = {};
@@ -299,17 +338,21 @@ if (window.TEROnLoad) {
 
 Usage:
 
-  <script>
-    window.onload = function () {
-      new TER (document.body);
-    };
-  </script>
-  <script src="time.js"></script>
-  
-  <time>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered appropriately in the user's locale -->
+Just insert:
 
-... or:
+  <script src="path/to/time.js" data-selector="time" async></script>
+
+... where the |data-selector| attribute value is a selector that only
+matches with |time| elements that should be processed.  Then any
+|time| element matched with the selector when the script is executed,
+as well as any |time| element matched with the selector inserted after
+the script's execution, is processed appropriately.  E.g.:
+
+  <time>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date and time in the user's locale
+       dependent format, such as "20 December 2008 11:27 PM" -->
+
+Alternatively:
 
   <script>
     window.onload = function () {
@@ -320,6 +363,13 @@ Usage:
   
   <time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered like "2 minutes ago" in English or Japanese -->
+
+For compatibility with previous versions of this script, if there is
+no |data-selector| attribute, the script does nothing by default,
+except for defining the |TER| global property.  By invoking |new TER
+(/element/)| constructor, where /element/ is an element node, any
+|time| element in the /element/ subtree (or /element/ itself if it is
+a |time| element) is processed appropriately.
 
 Repository:
 

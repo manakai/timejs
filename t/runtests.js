@@ -1,4 +1,4 @@
-(function () {
+(function (selector) {
   var envKey = new URLSearchParams (location.search).get ("env");
   
   var link0 = document.createElement ('link');
@@ -32,6 +32,7 @@
   var scriptLoaded = new Promise (function (ok, error) {
     var script = document.createElement ('script');
     script.src = '../src/time.js';
+    if (selector) script.setAttribute ('data-selector', selector);
     script.onload = ok;
     script.onerror = error;
     document.body.appendChild (script);
@@ -80,7 +81,7 @@
   div2.id = "qunit";
   div2.dir = 'ltr';
   document.body.appendChild (div2);
-}) ();
+}) (document.currentScript.getAttribute ('data-selector'));
 /*
 
 Per CC0 <https://creativecommons.org/publicdomain/zero/1.0/>, to the
