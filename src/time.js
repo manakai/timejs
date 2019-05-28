@@ -90,6 +90,33 @@ function TER (c) {
     el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
   } // setDateContent
 
+  function setMonthDayDateContent (el, date) {
+    if (!el.getAttribute ('title')) {
+      el.setAttribute ('title', el.textContent);
+    }
+    if (!el.getAttribute ('datetime')) {
+      var r = '';
+      r = date.getUTCFullYear (); // JS does not support years 0001-0999
+      r += '-' + ('0' + (date.getUTCMonth () + 1)).slice (-2);
+      r += '-' + ('0' + date.getUTCDate ()).slice (-2);
+      el.setAttribute ('datetime', r);
+    }
+
+    var lang = navigator.language;
+    if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
+        date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
+      el.textContent = date.toLocaleDateString (lang, {
+        "timeZone": "UTC",
+        month: "numeric",
+        day: "numeric",
+      });
+    } else {
+      el.textContent = date.toLocaleDateString (lang, {
+        "timeZone": "UTC",
+      });
+    }
+  } // setDateContent
+
   function setDateTimeContent (el, date) {
     if (!el.getAttribute ('title')) {
       el.setAttribute ('title', el.textContent);
@@ -102,13 +129,13 @@ function TER (c) {
     var tzoffset = el.getAttribute ('data-tzoffset');
     if (tzoffset !== null) {
       tzoffset = parseFloat (tzoffset);
-      el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString ({
-        year: true,
-        month: true,
-        day: true,
-        hour: true,
-        minute: true,
-        second: true,
+      el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString (navigator.language, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
       });
     } else {
       el.textContent = date.toLocaleString ();
@@ -237,6 +264,8 @@ TER.prototype._initialize = function () {
         setDateTimeContent (el, date);
       } else if (format === 'date') {
         setDateContent (el, date);
+      } else if (format === 'monthday') {
+        setMonthDayDateContent (el, date);
       } else if (format === 'ambtime') {
         setAmbtimeContent (el, date);
       } else { // auto
@@ -365,6 +394,13 @@ the script's execution, is processed appropriately.  E.g.:
   <time data-format=date>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered as a date in the user's locale dependent
        format, such as "20 December 2008" -->
+
+  <time>2008-12-20</time>
+  <time data-format=date>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date in the user's locale dependent
+       format, such as "20 December 2008" but the year component is
+       omitted if it is same as this year, such as "December 20" in
+       case it's 2008. -->
 
   <time data-format=ambtime>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered as an "ambtime" in English or Japanese
