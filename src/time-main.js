@@ -76,6 +76,31 @@ function TER (c) {
     }
   } // parseTimeElement
 
+  function _setDateContent (el, date) {
+    el.textContent = date.toLocaleDateString (navigator.language, {
+      "timeZone": "UTC",
+    });
+  } // _setDateContent
+
+  function _setMonthDayDateContent (el, date, prefix) {
+    el.textContent = prefix + date.toLocaleDateString (navigator.language, {
+      "timeZone": "UTC",
+      month: "numeric",
+      day: "numeric",
+    });
+  } // _setMonthDayDateContent
+
+  function _setDateTimeContent (el, date) {
+    el.textContent = date.toLocaleString (navigator.language, {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    });
+  } // _setDateTimeContent
+  
   function setDateContent (el, date) {
     if (!el.getAttribute ('title')) {
       el.setAttribute ('title', el.textContent);
@@ -87,7 +112,7 @@ function TER (c) {
       r += '-' + ('0' + date.getUTCDate ()).slice (-2);
       el.setAttribute ('datetime', r);
     }
-    el.textContent = date.toLocaleDateString (navigator.language, {"timeZone": "UTC"});
+    _setDateContent (el, date);
   } // setDateContent
 
   function setMonthDayDateContent (el, date) {
@@ -105,17 +130,11 @@ function TER (c) {
     var lang = navigator.language;
     if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
         date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
-      el.textContent = date.toLocaleDateString (lang, {
-        "timeZone": "UTC",
-        month: "numeric",
-        day: "numeric",
-      });
+      _setMonthDayDateContent (el, date, '');
     } else {
-      el.textContent = date.toLocaleDateString (lang, {
-        "timeZone": "UTC",
-      });
+      _setDateContent (el, date);
     }
-  } // setDateContent
+  } // setMonthDayDateContent
 
   function setDateTimeContent (el, date) {
     if (!el.getAttribute ('title')) {
@@ -127,19 +146,12 @@ function TER (c) {
     }
 
     var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
     if (tzoffset !== null) {
       tzoffset = parseFloat (tzoffset);
-      el.textContent = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000).toLocaleString (navigator.language, {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-      });
-    } else {
-      el.textContent = date.toLocaleString ();
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
     }
+    _setDateTimeContent (el, usedDate);
   } // setDateTimeContent
 
   function setAmbtimeContent (el, date) {
