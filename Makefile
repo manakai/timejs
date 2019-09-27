@@ -11,9 +11,11 @@ updatenightly: local/bin/pmbp.pl
 	$(GIT) add config
 	$(CURL) -sSLf https://raw.githubusercontent.com/wakaba/ciconfig/master/ciconfig | RUN_GIT=1 REMOVE_UNUSED=1 perl
 
+clean: clean-json-ps
+
 ## ------ Setup ------
 
-deps: git-submodules pmbp-install
+deps: git-submodules pmbp-install build
 
 git-submodules:
 	$(GIT) submodule update --init
@@ -32,9 +34,27 @@ pmbp-install: pmbp-upgrade
             --create-perl-command-shortcut @perl \
             --create-perl-command-shortcut @prove
 
-## ------ Tests ------
+json-ps: local/perl-latest/pm/lib/perl5/JSON/PS.pm
+clean-json-ps:
+	rm -fr local/perl-latest/pm/lib/perl5/JSON/PS.pm
+local/perl-latest/pm/lib/perl5/JSON/PS.pm:
+	mkdir -p local/perl-latest/pm/lib/perl5/JSON
+	$(WGET) -O $@ https://raw.githubusercontent.com/wakaba/perl-json-ps/master/lib/JSON/PS.pm
+
+build: json-ps build-main
+
+build-main: src/time.js
 
 PERL = ./perl
+
+local/dts.json:
+	$(WGET) -O $@ https://raw.githubusercontent.com/manakai/data-locale/master/data/calendar/dts.json
+local/dts-defs.js: bin/dts-defs.pl local/dts.json
+	$(PERL) $< > $@
+src/time.js: src/time-main.js local/dts-defs.js
+	cat src/time-main.js local/dts-defs.js > $@
+
+## ------ Tests ------
 
 test: test-deps test-main
 
