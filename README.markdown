@@ -3,38 +3,64 @@ time.js
 
 ## Usage
 
-```html
-<script>
-  window.onload = function () {
-    new TER (document.body);
-  };
-</script>
-<script src="time.js"></script>
-
-<time>2008-12-20T23:27+09:00</time>
-<!-- Will be rendered appropriately in the user's locale -->
-```
-
-... or:
+Just insert:
 
 ```html
-<script>
-  window.onload = function () {
-    new TER.Delta (document.body);
-  };
-</script>
-<script src="time.js"></script>
-
-<time>2008-12-20T23:27+09:00</time>
-<!-- Will be rendered like "2 minutes ago" in English or Japanese -->
+  <script src="path/to/time.js" data-time-selector="time" async></script>
 ```
 
-The |data-tzoffset| attribute can be specified for `time` elements.
-If specified, its value must be a valid floating-point number
-representing the number of seconds of the offset between the UTC and
-the local time used to generate the element's content.  If the local
-time is earlier than the UTC, the number must be positive.  If this
-attribute is not specified, the browser's local time is used.
+... where the |data-time-selector| attribute value is a selector that
+only matches with |time| elements that should be processed.  Then any
+|time| element matched with the selector when the script is executed,
+as well as any |time| element matched with the selector inserted after
+the script's execution, is processed appropriately.  E.g.:
+
+```html
+  <time>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date and time in the user's locale
+       dependent format, such as "20 December 2008 11:27 PM" -->
+
+  <time>2008-12-20</time>
+  <time data-format=date>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date in the user's locale dependent
+       format, such as "20 December 2008" -->
+
+  <time>2008-12-20</time>
+  <time data-format=date>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date in the user's locale dependent
+       format, such as "20 December 2008" but the year component is
+       omitted if it is same as this year, such as "December 20" in
+       case it's 2008. -->
+
+  <time data-format=ambtime>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as an "ambtime" in English or Japanese
+       depending on the user's language preference, such as "2 hours
+       ago" -->
+```
+
+When the `time` element's `datetime` or `data-tzoffset` attribute
+value is changed, the element's content is updated appropriately.
+(Note that the element's content's mutation is ignored.)
+
+The '--timejs-serialization' CSS property can be used to specify the
+date and time serialization format.  This version supports following
+serializations:
+
+  Property value     Output example
+  -----------------  ----------------------------------
+  'auto' (default)   (platform dependent)
+  'dtsjp1'           令和元(2019)年9月28日 1時23分45秒
+  'dtsjp2'           R1(2019).9.28 1:23:45
+
+For backward compatibility with previous versions of this script, if
+there is no `data-time-selector` or `data-selector` attribute, the
+script does nothing by default, except for defining the `TER` global
+property.  By invoking `new TER (/element/)` or `new TER.Delta
+(/element/)` constructor, where /element/ is an element node, any
+`time` element in the /element/ subtree (or /element/ itself if it is
+a `time` element) is processed appropriately.  The `TER` constructor
+is equivalent to no `data-format` attribute and the `TER.Delta`
+constructor is equivalent to `data-format=ambtime`.
 
 ## LICENSE
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+  <style>
+    html {
+      --timejs-serialization: dtsjp1;
+    }
+  </style>
+</head>
+<body>
+  <test-code name="datetime">
+    /*
+      <time>2012-05-01T01:12:51Z</time>
+    */
+      
+    var e = this.currentScript.querySelector ('time');
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "平成24(2012)年5月1日(火) 1時12分51秒",
+      "UTC:ja-JP": "平成24(2012)年5月1日(火) 1時12分51秒",
+      "Asia/Tokyo:en-US": "平成24(2012)年5月1日(火) 10時12分51秒",
+      "Asia/Tokyo:ja-JP": "平成24(2012)年5月1日(火) 10時12分51秒",
+      "America/Los_Angeles:en-US": "平成24(2012)年4月30日(月) 18時12分51秒",
+      "America/Los_Angeles:ja-JP": "平成24(2012)年4月30日(月) 18時12分51秒",
+    }[this.env]);
+  </test-code>
+  
+  <test-code name="date">
+    /*
+      <time data-format=date>2012-04-30T23:12:51Z</time>
+    */
+      
+    var e = this.currentScript.querySelector ('time');
+    await this.wait ();
+    this.assert.equal (e.textContent, "平成24(2012)年4月30日(月)");
+  </test-code>
+
+  <test-code name="monthday">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
+    e.setAttribute ('data-format', 'monthday');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getDay ()];
+    this.assert.equal (e.textContent, "4月30日("+w+")");
+  </test-code>
+  
+  <script src=runtests.js data-selector=time></script>
+</body>
+</html>
+<!--
+
+Per CC0 <https://creativecommons.org/publicdomain/zero/1.0/>, to the
+extent possible under law, the author has waived all copyright and
+related or neighboring rights to this work.
+
+-->
