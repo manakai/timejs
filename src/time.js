@@ -76,29 +76,98 @@ function TER (c) {
     }
   } // parseTimeElement
 
+  function _2digit (i) {
+    return i < 10 ? '0' + i : i;
+  } // _2digit
+
+  function _mod (m, n) {
+    return ((m % n) + n) % n;
+  };
+  
+  function _year (munix, year, dts) {
+    var defs = TER.defs.dts[dts];
+    var v = munix / 1000 / 60 / 60 / 24;
+    var def = defs[0];
+    for (var i = defs.length-1; i >= 1; i--) {
+      if (defs[i][0] <= v) {
+        def = defs[i];
+        break;
+      }
+    }
+    return def[1].map (_ => {
+      if (_ instanceof Array) {
+        if (_[0] === 'Y') {
+          var y = year - _[1];
+          return y === 1 ? '元' : y;
+        } else if (_[0] === 'y') {
+          return year - _[1];
+        } else if (_[0] === 'k') {
+          var kk = [
+            '甲子','乙丑','丙寅','丁卯','戊辰','己巳','庚午','辛未','壬申',
+            '癸酉','甲戌','乙亥','丙子','丁丑','戊寅','己卯','庚辰','辛巳',
+            '壬午','癸未','甲申','乙酉','丙戌','丁亥','戊子','己丑','庚寅',
+            '辛卯','壬辰','癸巳','甲午','乙未','丙申','丁酉','戊戌','己亥',
+            '庚子','辛丑','壬寅','癸卯','甲辰','乙巳','丙午','丁未','戊申',
+            '己酉','庚戌','辛亥','壬子','癸丑','甲寅','乙卯','丙辰','丁巳',
+            '戊午','己未','庚申','辛酉','壬戌','癸亥',
+          ];
+          return kk[_mod (year - 4, 60)];
+        } else {
+          throw _[0];
+        }
+      } else {
+        return _;
+      }
+    }).join ("");
+  } // _year
+
   function _setDateContent (el, date) {
-    el.textContent = date.toLocaleDateString (navigator.language, {
-      "timeZone": "UTC",
-    });
+    var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
+    dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
+    if (dts === 'dtsjp1') {
+      el.textContent = _year (date.valueOf (), date.getUTCFullYear (), dts) + '年' + (date.getUTCMonth () + 1) + '月' + date.getUTCDate () + '日(' + ['日','月','火','水','木','金','土'][date.getUTCDay ()] + ')';
+    } else if (dts === 'dtsjp2') {
+      el.textContent = _year (date.valueOf (), date.getUTCFullYear (), dts) + '.' + (date.getUTCMonth () + 1) + '.' + date.getUTCDate ();
+    } else {
+      el.textContent = date.toLocaleDateString (navigator.language, {
+        "timeZone": "UTC",
+      });
+    }
   } // _setDateContent
 
-  function _setMonthDayDateContent (el, date, prefix) {
-    el.textContent = prefix + date.toLocaleDateString (navigator.language, {
-      "timeZone": "UTC",
-      month: "numeric",
-      day: "numeric",
-    });
+  function _setMonthDayDateContent (el, date) {
+    var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
+    dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
+    if (dts === 'dtsjp1') {
+      el.textContent = (date.getUTCMonth () + 1) + '月' + date.getUTCDate () + '日(' + ['日','月','火','水','木','金','土'][date.getUTCDay ()] + ')';
+    } else if (dts === 'dtsjp2') {
+      el.textContent = (date.getUTCMonth () + 1) + '.' + date.getUTCDate ();
+    } else {
+      el.textContent = date.toLocaleDateString (navigator.language, {
+        "timeZone": "UTC",
+        month: "numeric",
+        day: "numeric",
+      });
+    }
   } // _setMonthDayDateContent
 
   function _setDateTimeContent (el, date) {
-    el.textContent = date.toLocaleString (navigator.language, {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-    });
+    var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
+    dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
+    if (dts === 'dtsjp1') {
+      el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '年' + (date.getMonth () + 1) + '月' + date.getDate () + '日(' + ['日','月','火','水','木','金','土'][date.getDay ()] + ') ' + date.getHours () + '時' + date.getMinutes () + '分' + date.getSeconds () + '秒';
+    } else if (dts === 'dtsjp2') {
+      el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '.' + (date.getMonth () + 1) + '.' + date.getDate () + ' ' + date.getHours () + ':' + _2digit (date.getMinutes ()) + ':' + _2digit (date.getSeconds ());
+    } else {
+      el.textContent = date.toLocaleString (navigator.language, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      });
+    }
   } // _setDateTimeContent
   
   function setDateContent (el, date) {
@@ -130,7 +199,7 @@ function TER (c) {
     var lang = navigator.language;
     if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
         date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
-      _setMonthDayDateContent (el, date, '');
+      _setMonthDayDateContent (el, date);
     } else {
       _setDateContent (el, date);
     }
@@ -309,8 +378,10 @@ TER.prototype._initialize = function () {
         });
       });
     });
-    mo.observe (document, {childList: true, subtree: true});
-    Array.prototype.forEach.call (document.querySelectorAll (selector), op);
+    Promise.resolve ().then (() => {
+      mo.observe (document, {childList: true, subtree: true});
+      Array.prototype.forEach.call (document.querySelectorAll (selector), op);
+    });
 
   }) (document.currentScript.getAttribute ('data-time-selector') ||
       document.currentScript.getAttribute ('data-selector') /* backcompat */);
@@ -423,6 +494,16 @@ the script's execution, is processed appropriately.  E.g.:
 When the |time| element's |datetime| or |data-tzoffset| attribute
 value is changed, the element's content is updated appropriately.
 (Note that the element's content's mutation is ignored.)
+
+The '--timejs-serialization' CSS property can be used to specify the
+date and time serialization format.  This version supports following
+serializations:
+
+  Property value     Output example
+  -----------------  ----------------------------------
+  'auto' (default)   (platform dependent)
+  'dtsjp1'           令和元(2019)年9月28日 1時23分45秒
+  'dtsjp2'           R1(2019).9.28 1:23:45
 
 For backward compatibility with previous versions of this script, if
 there is no |data-time-selector| or |data-selector| attribute, the

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+  <style>
+    html {
+      --timejs-serialization: dtsjp2;
+    }
+  </style>
+</head>
+<body>
+  <test-code name="datetime">
+    /*
+      <time>2012-05-01T01:12:51Z</time>
+    */
+      
+    var e = this.currentScript.querySelector ('time');
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "H24(2012).5.1 1:12:51",
+      "UTC:ja-JP": "H24(2012).5.1 1:12:51",
+      "Asia/Tokyo:en-US": "H24(2012).5.1 10:12:51",
+      "Asia/Tokyo:ja-JP": "H24(2012).5.1 10:12:51",
+      "America/Los_Angeles:en-US": "H24(2012).4.30 18:12:51",
+      "America/Los_Angeles:ja-JP": "H24(2012).4.30 18:12:51",
+    }[this.env]);
+  </test-code>
+  
+  <test-code name="date">
+    /*
+      <time data-format=date>2012-04-30T23:12:51Z</time>
+    */
+      
+    var e = this.currentScript.querySelector ('time');
+    await this.wait ();
+    this.assert.equal (e.textContent, "H24(2012).4.30");
+  </test-code>
+
+  <test-code name="monthday">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
+    e.setAttribute ('data-format', 'monthday');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, "4.30");
+  </test-code>
+  
+  <script src=runtests.js data-selector=time></script>
+</body>
+</html>
+<!--
+
+Per CC0 <https://creativecommons.org/publicdomain/zero/1.0/>, to the
+extent possible under law, the author has waived all copyright and
+related or neighboring rights to this work.
+
+-->

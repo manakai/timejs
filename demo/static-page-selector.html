@@ -1,7 +1,12 @@
 <!DOCTYPE HTML>
+<meta charset=utf-8>
 <title>time.js demo</title>
 
+<section>
+
 <p>Time: <time>2008-12-20T23:27+09:00</time>.
+<p>Time: <time>2008-12-20T23:27+10:00</time>.
+<p>Time: <time>2008-12-20T23:27.341+09:00</time>.
 <p>Time (asis): <time class=asis>2008-12-20T23:27+09:00</time>.
 
 <script src=../src/time.js data-selector=time:not(.asis)></script>
@@ -11,3 +16,48 @@
 <p>Month & day: <time data-format=monthday>2008-12-20</time>,
   <time data-format=monthday>2019-05-03</time>,
   <time data-format=monthday>2020-08-01</time>.
+
+</section>
+
+<section style="--timejs-serialization: dtsjp1">
+  <h1><code>dtsjp1</code></h1>
+
+<p>Time: <time>2008-12-20T23:27+09:00</time>.
+<p>Time: <time>2008-12-20T23:27+10:00</time>.
+<p>Time: <time>2008-12-20T23:27.341+09:00</time>.
+<p>Time (asis): <time class=asis>2008-12-20T23:27+09:00</time>.
+
+<script src=../src/time.js data-selector=time:not(.asis)></script>
+
+<p>Date: <time>2008-12-20</time>.
+
+<p>Month & day: <time data-format=monthday>2008-12-20</time>,
+  <time data-format=monthday>2019-05-03</time>,
+  <time data-format=monthday>2020-08-01</time>,
+  <time data-format=monthday>2020-08-02</time>.
+
+<p>
+  <input type=date onchange="
+    parentNode.querySelector ('time').setAttribute ('datetime', valueAsDate.toISOString ());
+  ">
+  <time data-format=date></time>
+  
+</section>
+
+<section style="--timejs-serialization: dtsjp2">
+  <h1><code>dtsjp2</code></h1>
+
+<p>Time: <time>2008-12-20T23:27+09:00</time>.
+<p>Time: <time>2008-12-20T23:27+10:00</time>.
+<p>Time: <time>2008-12-20T23:27.341+09:00</time>.
+<p>Time (asis): <time class=asis>2008-12-20T23:27+09:00</time>.
+
+<script src=../src/time.js data-selector=time:not(.asis)></script>
+
+<p>Date: <time>2008-12-20</time>.
+
+<p>Month & day: <time data-format=monthday>2008-12-20</time>,
+  <time data-format=monthday>2019-05-03</time>,
+  <time data-format=monthday>2020-08-01</time>.
+
+</section>
