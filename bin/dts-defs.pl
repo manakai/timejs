@@ -9,7 +9,7 @@ my $DTSes = [];
 {
   my $DefsPath = $RootPath->child ('local/dts.json');
   my $defs = json_bytes2perl $DefsPath->slurp;
-  for my $key (qw(dtsjp1 dtsjp2)) {
+  for my $key (qw(dtsjp1 dtsjp2 dtsjp3)) {
     my $v = $defs->{dts}->{$key}->{patterns};
     for (@$v) {
       $_->[0] = ($_->[0] - 2440587.5) #* 24 * 60 * 60 * 1000

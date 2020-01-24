@@ -126,7 +126,7 @@ function TER (c) {
     dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
     if (dts === 'dtsjp1') {
       el.textContent = _year (date.valueOf (), date.getUTCFullYear (), dts) + '年' + (date.getUTCMonth () + 1) + '月' + date.getUTCDate () + '日(' + ['日','月','火','水','木','金','土'][date.getUTCDay ()] + ')';
-    } else if (dts === 'dtsjp2') {
+    } else if (dts === 'dtsjp2' || dts === 'dtsjp3') {
       el.textContent = _year (date.valueOf (), date.getUTCFullYear (), dts) + '.' + (date.getUTCMonth () + 1) + '.' + date.getUTCDate ();
     } else {
       el.textContent = date.toLocaleDateString (navigator.language, {
@@ -140,7 +140,7 @@ function TER (c) {
     dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
     if (dts === 'dtsjp1') {
       el.textContent = (date.getUTCMonth () + 1) + '月' + date.getUTCDate () + '日(' + ['日','月','火','水','木','金','土'][date.getUTCDay ()] + ')';
-    } else if (dts === 'dtsjp2') {
+    } else if (dts === 'dtsjp2' || dts === 'dtsjp3') {
       el.textContent = (date.getUTCMonth () + 1) + '.' + date.getUTCDate ();
     } else {
       el.textContent = date.toLocaleDateString (navigator.language, {
@@ -156,7 +156,7 @@ function TER (c) {
     dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
     if (dts === 'dtsjp1') {
       el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '年' + (date.getMonth () + 1) + '月' + date.getDate () + '日(' + ['日','月','火','水','木','金','土'][date.getDay ()] + ') ' + date.getHours () + '時' + date.getMinutes () + '分' + date.getSeconds () + '秒';
-    } else if (dts === 'dtsjp2') {
+    } else if (dts === 'dtsjp2' || dts === 'dtsjp3') {
       el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '.' + (date.getMonth () + 1) + '.' + date.getDate () + ' ' + date.getHours () + ':' + _2digit (date.getMinutes ()) + ':' + _2digit (date.getSeconds ());
     } else {
       el.textContent = date.toLocaleString (navigator.language, {
