@@ -26,6 +26,23 @@
     }[this.env]);
   </test-code>
   
+  <test-code name="deltatime">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2015-09-24T00:00:01Z');
+    e.setAttribute ('data-format', 'deltatime');
+    this.currentScript.appendChild (e);
+
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+          "UTC:en-US": "99 days 23 hours ago",
+          "UTC:ja-JP": "99日23時間前",
+          "Asia/Tokyo:en-US": "99 days 23 hours ago",
+          "Asia/Tokyo:ja-JP": "99日23時間前",
+          "America/Los_Angeles:en-US": "99 days 23 hours ago",
+          "America/Los_Angeles:ja-JP": "99日23時間前",
+    }[this.env]);
+  </test-code>
+  
   <test-code name="monthday">
     var e = document.createElement ('time');
     e.setAttribute ('datetime', '2012-05-01T04:01:01Z');

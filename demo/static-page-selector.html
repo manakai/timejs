@@ -17,6 +17,20 @@
   <time data-format=monthday>2019-05-03</time>,
   <time data-format=monthday>2020-08-01</time>.
 
+<p>Ambtime:
+  <time data-format=ambtime>1998-10-04</time>,
+  <time data-format=ambtime>2018-10-04</time>,
+  <time data-format=ambtime>2019-10-04</time>,
+  <time data-format=ambtime>2020-10-04</time>
+  <time data-format=ambtime>2100-10-04</time>
+
+<p>Deltatime:
+  <time data-format=deltatime>1998-10-04</time>,
+  <time data-format=deltatime>2018-10-04</time>,
+  <time data-format=deltatime>2019-10-04</time>,
+  <time data-format=deltatime>2020-10-04</time>
+  <time data-format=deltatime>2100-10-04</time>
+
 </section>
 
 <section style="--timejs-serialization: dtsjp1">
@@ -35,6 +49,20 @@
   <time data-format=monthday>2019-05-03</time>,
   <time data-format=monthday>2020-08-01</time>,
   <time data-format=monthday>2020-08-02</time>.
+
+<p>Ambtime:
+  <time data-format=ambtime>1998-10-04</time>,
+  <time data-format=ambtime>2018-10-04</time>,
+  <time data-format=ambtime>2019-10-04</time>,
+  <time data-format=ambtime>2020-10-04</time>
+  <time data-format=ambtime>2100-10-04</time>
+
+<p>Deltatime:
+  <time data-format=deltatime>1998-10-04</time>,
+  <time data-format=deltatime>2018-10-04</time>,
+  <time data-format=deltatime>2019-10-04</time>,
+  <time data-format=deltatime>2020-10-04</time>
+  <time data-format=deltatime>2100-10-04</time>
 
 <p>
   <input type=date onchange="
@@ -59,5 +87,63 @@
 <p>Month & day: <time data-format=monthday>2008-12-20</time>,
   <time data-format=monthday>2019-05-03</time>,
   <time data-format=monthday>2020-08-01</time>.
+
+<p>Ambtime:
+  <time data-format=ambtime>1998-10-04</time>,
+  <time data-format=ambtime>2018-10-04</time>,
+  <time data-format=ambtime>2019-10-04</time>,
+  <time data-format=ambtime>2020-10-04</time>
+  <time data-format=ambtime>2100-10-04</time>
+
+<p>Deltatime:
+  <time data-format=deltatime>1998-10-04</time>,
+  <time data-format=deltatime>2018-10-04</time>,
+  <time data-format=deltatime>2019-10-04</time>,
+  <time data-format=deltatime>2020-10-04</time>
+  <time data-format=deltatime>2100-10-04</time>
+
+<p>
+  <input type=date onchange="
+    parentNode.querySelector ('time').setAttribute ('datetime', valueAsDate.toISOString ());
+  ">
+  <time data-format=date></time>
+
+</section>
+
+<section style="--timejs-serialization: dtsjp3">
+  <h1><code>dtsjp3</code></h1>
+
+<p>Time: <time>2008-12-20T23:27+09:00</time>.
+<p>Time: <time>2008-12-20T23:27+10:00</time>.
+<p>Time: <time>2008-12-20T23:27.341+09:00</time>.
+<p>Time (asis): <time class=asis>2008-12-20T23:27+09:00</time>.
+
+<script src=../src/time.js data-selector=time:not(.asis)></script>
+
+<p>Date: <time>2008-12-20</time>.
+
+<p>Month & day: <time data-format=monthday>2008-12-20</time>,
+  <time data-format=monthday>2019-05-03</time>,
+  <time data-format=monthday>2020-08-01</time>.
+
+<p>Ambtime:
+  <time data-format=ambtime>1998-10-04</time>,
+  <time data-format=ambtime>2018-10-04</time>,
+  <time data-format=ambtime>2019-10-04</time>,
+  <time data-format=ambtime>2020-10-04</time>
+  <time data-format=ambtime>2100-10-04</time>
+
+<p>Deltatime:
+  <time data-format=deltatime>1998-10-04</time>,
+  <time data-format=deltatime>2018-10-04</time>,
+  <time data-format=deltatime>2019-10-04</time>,
+  <time data-format=deltatime>2020-10-04</time>
+  <time data-format=deltatime>2100-10-04</time>
+
+<p>
+  <input type=date onchange="
+    parentNode.querySelector ('time').setAttribute ('datetime', valueAsDate.toISOString ());
+  ">
+  <time data-format=date></time>
 
 </section>
