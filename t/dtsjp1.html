@@ -49,12 +49,19 @@
 
   <test-code name="monthdaytime">
     var e = document.createElement ('time');
-    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T01:12:51Z');
     e.setAttribute ('data-format', 'monthdaytime');
     this.currentScript.appendChild (e);
     await this.wait ();
     var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getUTCDay ()];
-    this.assert.equal (e.textContent, "4月30日("+w+") 18時12分51秒");
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "4月30日("+w+") 7時12分51秒",
+      "UTC:ja-JP": "4月30日("+w+") 7時12分51秒",
+      "Asia/Tokyo:en-US": "4月30日("+w+") 16時12分51秒",
+      "Asia/Tokyo:ja-JP": "4月30日("+w+") 16時12分51秒",
+      "America/Los_Angeles:en-US": "4月30日("+w+") 1時12分51秒",
+      "America/Los_Angeles:ja-JP": "4月30日("+w+") 1時12分51秒",
+    }[this.env]);
   </test-code>
   
   <script src=runtests.js data-selector=time></script>
