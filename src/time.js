@@ -240,12 +240,19 @@ function TER (c) {
       el.setAttribute ('datetime', date.toISOString ());
     }
 
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+    }
+    
     var lang = navigator.language;
     if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
-        date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
-      _setMonthDayTimeContent (el, date);
+        usedDate.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
+      _setMonthDayTimeContent (el, usedDate);
     } else {
-      _setDateTimeContent (el, date);
+      _setDateTimeContent (el, usedDate);
     }
   } // setMonthDayTimeContent
 
@@ -519,20 +526,24 @@ as well as any |time| element matched with the selector inserted after
 the script's execution, is processed appropriately.  E.g.:
 
   <time>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date and time in the user's locale
-       dependent format, such as "20 December 2008 11:27 PM" -->
+  <!-- Will be rendered as a date and time, e.g.
+       "20 December 2008 11:27:00 PM" -->
 
   <time>2008-12-20</time>
   <time data-format=date>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date in the user's locale dependent
-       format, such as "20 December 2008" -->
+  <!-- Will be rendered as a date, e.g. "20 December 2008" -->
 
-  <time>2008-12-20</time>
-  <time data-format=date>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date in the user's locale dependent
-       format, such as "20 December 2008" but the year component is
-       omitted if it is same as this year, such as "December 20" in
-       case it's 2008. -->
+  <time data-format=monthday>2008-12-20</time>
+  <time data-format=monthday>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date, e.g. "20 December 2008" but the
+       year component is omitted if it is same as this year, e.g.
+       "December 20" if it's 2008. -->
+
+  <time data-format=monthdaytime>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date and time, e.g.
+       "20 December 2008 11:27:00 PM" but the year component is omitted
+       if it is same as this year, e.g. "December 20 11:27:00 PM" if
+       it's 2008. -->
 
   <time data-format=ambtime>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered as an "ambtime" in English or Japanese

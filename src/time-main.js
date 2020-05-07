@@ -240,12 +240,19 @@ function TER (c) {
       el.setAttribute ('datetime', date.toISOString ());
     }
 
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+    }
+    
     var lang = navigator.language;
     if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
-        date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
-      _setMonthDayTimeContent (el, date);
+        usedDate.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
+      _setMonthDayTimeContent (el, usedDate);
     } else {
-      _setDateTimeContent (el, date);
+      _setDateTimeContent (el, usedDate);
     }
   } // setMonthDayTimeContent
 
