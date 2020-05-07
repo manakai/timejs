@@ -46,6 +46,16 @@
     var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getUTCDay ()];
     this.assert.equal (e.textContent, "4月30日("+w+")");
   </test-code>
+
+  <test-code name="monthdaytime">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
+    e.setAttribute ('data-format', 'monthdaytime');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getUTCDay ()];
+    this.assert.equal (e.textContent, "4月30日("+w+") 18時12分51秒");
+  </test-code>
   
   <script src=runtests.js data-selector=time></script>
 </body>

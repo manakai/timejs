@@ -17,22 +17,31 @@ the script's execution, is processed appropriately.  E.g.:
 
 ```html
   <time>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date and time in the user's locale
-       dependent format, such as "20 December 2008 11:27 PM" -->
+  <!-- Will be rendered as a date and time, e.g.
+       "20 December 2008 11:27:00 PM" -->
 
   <time>2008-12-20</time>
   <time data-format=date>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date in the user's locale dependent
-       format, such as "20 December 2008" -->
+  <!-- Will be rendered as a date, e.g. "20 December 2008" -->
 
-  <time>2008-12-20</time>
-  <time data-format=date>2008-12-20T23:27+09:00</time>
-  <!-- Will be rendered as a date in the user's locale dependent
-       format, such as "20 December 2008" but the year component is
-       omitted if it is same as this year, such as "December 20" in
-       case it's 2008. -->
+  <time data-format=monthday>2008-12-20</time>
+  <time data-format=monthday>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date, e.g. "20 December 2008" but the
+       year component is omitted if it is same as this year, e.g.
+       "December 20" if it's 2008. -->
+
+  <time data-format=monthdaytime>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a date and time, e.g.
+       "20 December 2008 11:27:00 PM" but the year component is omitted
+       if it is same as this year, e.g. "December 20 11:27:00 PM" if
+       it's 2008. -->
 
   <time data-format=ambtime>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as an "ambtime" in English or Japanese
+       depending on the user's language preference, such as "2 hours
+       ago", if the date is within 100 days from "today" -->
+
+  <time data-format=deltatime>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered as an "ambtime" in English or Japanese
        depending on the user's language preference, such as "2 hours
        ago" -->
@@ -51,6 +60,7 @@ serializations:
   'auto' (default)   (platform dependent)
   'dtsjp1'           令和元(2019)年9月28日 1時23分45秒
   'dtsjp2'           R1(2019).9.28 1:23:45
+  'dtsjp3'           2019(R1)/9/28 1:23:45
 
 For backward compatibility with previous versions of this script, if
 there is no `data-time-selector` or `data-selector` attribute, the
