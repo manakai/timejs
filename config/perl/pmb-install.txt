@@ -3,7 +3,7 @@ Carp~1.50
 Digest::SHA~6.02
 IO::File~1.45
 MIME::Base64~3.16
-Math::BigInt~1.999821
+Math::BigInt~1.999823
 Net::SSLeay~1.90
 Path::Tiny~0.118
 Socket~2.032
