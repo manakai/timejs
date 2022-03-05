@@ -1,4 +1,4 @@
-AnyEvent::Util
+AnyEvent~7.17
 Carp~1.50
 Digest::SHA~6.02
 IO::File~1.48
@@ -7,6 +7,6 @@ Math::BigInt~1.999829
 Net::SSLeay~1.92
 Path::Tiny~0.122
 Socket~2.032
-Test::More~1.302189
+Test::More~1.302190
 Time::HiRes~1.9764
 your~1.00
