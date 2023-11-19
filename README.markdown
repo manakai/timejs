@@ -72,6 +72,11 @@ a `time` element) is processed appropriately.  The `TER` constructor
 is equivalent to no `data-format` attribute and the `TER.Delta`
 constructor is equivalent to `data-format=ambtime`.
 
+## HISTORY
+
+The Git repository was at <https://github.com/wakaba/timejs> until 19
+November 2023, then transferred to the manakai project.
+
 ## LICENSE
 
 See: [LICENSE file](./LICENSE)
