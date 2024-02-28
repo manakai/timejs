@@ -57,10 +57,11 @@ sub execute_test_html_file {
                 if (bannerElem) {
                   clearInterval (timer);
                   ok ();
-                }
-                elapsed += 100;
-                if (elapsed > 2 * 60 * 1000) {
-                  ng (new Error ("qunit loading timeout"));
+                } else {
+                  elapsed += 100;
+                  if (elapsed > 2 * 60 * 1000) {
+                    ng (new Error ("qunit loading timeout"));
+                  }
                 }
               }, 100);
             });
@@ -90,7 +91,7 @@ sub execute_test_html_file {
                   "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
             };
           });
-        }, [], timeout => 5)->then (sub {
+        }, [], timeout => 2*60 + 5)->then (sub {
           my $result = $_[0];
           $all_tests_passed = $result->json->{value}->{allTestsPassed};
 
