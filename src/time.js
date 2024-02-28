@@ -43,6 +43,9 @@ the script's execution, is processed appropriately.  E.g.:
        depending on the user's language preference, such as "2 hours
        ago" -->
 
+  <time data-format=time>2008-12-20T23:27+09:00</time>
+  <!-- Will be rendered as a time, e.g. "11:27:00 PM" -->
+
 When the |time| element's |datetime| or |data-tzoffset| attribute
 value is changed, the element's content is updated appropriately.
 (Note that the element's content's mutation is ignored.)
@@ -259,6 +262,43 @@ function TER (c) {
       });
     }
   } // _setMonthDayTimeContent
+
+  function setTimeContent (el, date) {
+    if (!el.getAttribute ('title')) {
+      el.setAttribute ('title', el.textContent);
+    }
+    if (!el.getAttribute ('datetime')) {
+      // XXX If year is outside of 1000-9999, ...
+      el.setAttribute ('datetime', date.toISOString ());
+    }
+
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+    }
+
+    _setTimeContent (el, usedDate);
+  } // setTimeContent
+
+  function _setTimeContent (el, date) {
+    var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
+    dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
+    if (dts === 'dtsjp1') {
+      el.textContent = date.getHours () + '時' + date.getMinutes () + '分' + date.getSeconds () + '秒';
+    } else if (dts === 'dtsjp2') {
+      el.textContent = date.getHours () + ':' + _2digit (date.getMinutes ()) + ':' + _2digit (date.getSeconds ());
+    } else if (dts === 'dtsjp3') {
+      el.textContent = date.getHours () + ':' + _2digit (date.getMinutes ()) + ':' + _2digit (date.getSeconds ());
+    } else {
+      el.textContent = date.toLocaleString (navigator.language, {
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      });
+    }
+  } // _setTimeContent
 
   function _setDateTimeContent (el, date) {
     var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
@@ -493,6 +533,8 @@ TER.prototype._initialize = function () {
         setAmbtimeContent (el, date, {format});
       } else if (format === 'deltatime') {
         setAmbtimeContent (el, date, {deltaOnly: true});
+      } else if (format === 'time') {
+        setTimeContent (el, date);
       } else { // auto
         if (date.hasTimezone) { /* full date */
           setDateTimeContent (el, date);

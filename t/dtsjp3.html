@@ -61,7 +61,23 @@
       "America/Los_Angeles:ja-JP": "4/30 18:12:51",
     }[this.env]);
   </test-code>
-  
+
+  <test-code name="time">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-05-01T01:12:51Z');
+    e.setAttribute ('data-format', 'time');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "1:12:51",
+      "UTC:ja-JP": "1:12:51",
+      "Asia/Tokyo:en-US": "10:12:51",
+      "Asia/Tokyo:ja-JP": "10:12:51",
+      "America/Los_Angeles:en-US": "18:12:51",
+      "America/Los_Angeles:ja-JP": "18:12:51",
+    }[this.env]);
+  </test-code>
+    
   <script src=runtests.js data-selector=time></script>
 </body>
 </html>
