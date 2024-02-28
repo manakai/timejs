@@ -5,6 +5,7 @@ use lib glob path (__FILE__)->parent->parent->child ('t_deps/modules/*/lib');
 use IO::File;
 use JSON::PS;
 use Promise;
+use Promised::Flow;
 use Web::URL;
 use Web::Driver::Client::Connection;
 
@@ -47,24 +48,17 @@ sub execute_test_html_file {
       my $p = Promise->resolve (1)->then (sub {
         return $session->go (Web::URL->parse_string ($test_url));
       })->then (sub {
+        return promised_wait_until {
+          return $session->execute (q{
+            return document.querySelector("#qunit-banner");
+          }, [])->then (sub {
+             my $r = $_[0]->json->{value};
+             return $r ? 'done' : not 'done';
+           });
+        } timeout => 60, name => 'qunit loaded';
+      })->then (sub {
         return $session->execute (q{
           return Promise.resolve().then(function () {
-            return new Promise ((ok, ng) => {
-              let elapsed = 0;
-              let timer;
-              timer = setInterval (() => {
-                var bannerElem = document.querySelector("#qunit-banner");
-                if (bannerElem) {
-                  clearInterval (timer);
-                  ok ();
-                } else {
-                  elapsed += 100;
-                  if (elapsed > 2 * 60 * 1000) {
-                    ng (new Error ("qunit loading timeout"));
-                  }
-                }
-              }, 100);
-            });
           }).then (function () {
             var bannerElem = document.querySelector("#qunit-banner");
             var testFinished = bannerElem.classList.contains("qunit-pass") || bannerElem.classList.contains("qunit-fail");
@@ -91,7 +85,30 @@ sub execute_test_html_file {
                   "<!DOCTYPE html>\n<html>\n" + clonedHead.outerHTML + "\n" + clonedBody.outerHTML + "\n</html>\n"
             };
           });
-        }, [], timeout => 2*60 + 5)->then (sub {
+        }, [], timeout => 5)->catch (sub {
+          my $e = $_[0];
+
+          return Promise->all ([
+            $session->screenshot,
+            $session->execute (q{ return document.documentElement.outerHTML }),
+          ])->then (sub {
+            my $image = $_[0]->[0];
+            my $html = $_[0]->[1]->json->{value};
+            
+            my $fh = IO::File->new("$test_result_file_path-ss.png", ">");
+            die "File open failed: $test_result_file_path-ss.png" if not defined $fh;
+            print $fh $image;
+            undef $fh;
+
+            my $path = path ("$test_result_file_path-snapshot.html");
+            $path->spew_utf8 ($html);
+
+            warn "Screenshot: |$test_result_file_path-ss.png|\n";
+            warn "Snapshot: |$test_result_file_path-snapshot.html|\n";
+
+            die $e;
+          });
+        })->then (sub {
           my $result = $_[0];
           $all_tests_passed = $result->json->{value}->{allTestsPassed};
 
