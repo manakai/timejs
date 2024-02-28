@@ -3,6 +3,7 @@
     "merger": true,
     "gaa": true,
     "build": ["make test-deps"],
-    "tests": ["make test"]
+    "tests": ["make test"],
+    "pages": true
   }
 }
