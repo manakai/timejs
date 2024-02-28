@@ -8,12 +8,22 @@
 <body onload='
   var clock = sinon.useFakeTimers(Date.parse("2016-01-02T00:00:00Z"));
 '>
-  
+
   <test-code name="ambtime">
     var e = document.createElement ('time');
     e.setAttribute ('datetime', '2015-09-24T00:00:01Z');
     e.setAttribute ('data-format', 'ambtime');
     this.currentScript.appendChild (e);
+
+    let date1 = "2000-01-01T02:03:02Z";
+    var f = document.createElement ('time');
+    f.setAttribute ('datetime', date1);
+    f.setAttribute ('data-format', 'ambtime');
+    this.currentScript.appendChild (f);
+    var g = document.createElement ('time');
+    g.setAttribute ('datetime', date1);
+    g.setAttribute ('data-format', 'datetime');
+    this.currentScript.appendChild (g);
 
     await this.wait ();
     this.assert.equal (e.textContent, {
@@ -24,6 +34,34 @@
           "America/Los_Angeles:en-US": "99 days 23 hours ago",
           "America/Los_Angeles:ja-JP": "99日23時間前",
     }[this.env]);
+  </test-code>
+  
+  <test-code name="ambdate">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2015-09-24T00:00:01Z');
+    e.setAttribute ('data-format', 'ambdate');
+    this.currentScript.appendChild (e);
+
+    let date1 = "2000-01-01T02:03:02Z";
+    var f = document.createElement ('time');
+    f.setAttribute ('datetime', date1);
+    f.setAttribute ('data-format', 'ambdate');
+    this.currentScript.appendChild (f);
+    var g = document.createElement ('time');
+    g.setAttribute ('datetime', date1);
+    g.setAttribute ('data-format', 'date');
+    this.currentScript.appendChild (g);
+
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+          "UTC:en-US": "99 days 23 hours ago",
+          "UTC:ja-JP": "99日23時間前",
+          "Asia/Tokyo:en-US": "99 days 23 hours ago",
+          "Asia/Tokyo:ja-JP": "99日23時間前",
+          "America/Los_Angeles:en-US": "99 days 23 hours ago",
+          "America/Los_Angeles:ja-JP": "99日23時間前",
+    }[this.env]);
+    this.assert.equal (f.textContent, g.textContent);
   </test-code>
   
   <test-code name="deltatime">
