@@ -49,6 +49,22 @@ sub execute_test_html_file {
       })->then (sub {
         return $session->execute (q{
           return Promise.resolve().then(function () {
+            return new Promise ((ok, ng) => {
+              let elapsed = 0;
+              let timer;
+              timer = setInterval (() => {
+                var bannerElem = document.querySelector("#qunit-banner");
+                if (bannerElem) {
+                  clearInterval (timer);
+                  ok ();
+                }
+                elapsed += 100;
+                if (elapsed > 2 * 60 * 1000) {
+                  ng (new Error ("qunit loading timeout"));
+                }
+              }, 100);
+            });
+          }).then (function () {
             var bannerElem = document.querySelector("#qunit-banner");
             var testFinished = bannerElem.classList.contains("qunit-pass") || bannerElem.classList.contains("qunit-fail");
             if (!testFinished) {
