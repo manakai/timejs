@@ -114,6 +114,23 @@
       "America/Los_Angeles:ja-JP": "0時12分51秒",
     }[this.env]);
   </test-code>
+
+  <test-code name="hm">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T07:12:51Z');
+    e.setAttribute ('data-format', 'hm');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getUTCDay ()];
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "7時12分",
+      "UTC:ja-JP": "7時12分",
+      "Asia/Tokyo:en-US": "16時12分",
+      "Asia/Tokyo:ja-JP": "16時12分",
+      "America/Los_Angeles:en-US": "0時12分",
+      "America/Los_Angeles:ja-JP": "0時12分",
+    }[this.env]);
+  </test-code>
   
   <script src=runtests.js data-selector=time></script>
 </body>
