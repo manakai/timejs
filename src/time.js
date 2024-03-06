@@ -52,6 +52,33 @@ the script's execution, is processed appropriately.  E.g.:
   <time data-format=time>2008-12-20T23:27+09:00</time>
   <!-- Will be rendered as a time, e.g. "11:27:00 PM" -->
 
+Attributes.
+
+  datetime=""
+
+    The machine readable date and/or time string, as specified by the
+    HTML Standard.  Can be omitted if the text content of the element
+    is a machine readable date and/or time string.
+
+  data-format=""
+
+    The format of the date/time text.  See the examples above.
+
+  data-reftime=""
+
+    The reference time used to create the date/time text
+    (e.g. |data-format=ambtime| or |data-format=monthday|).  The value
+    must be a global date and time string as specified by the HTML
+    Standard.  Defaulted to the current time.
+
+  data-tzoffset=""
+
+    The time-zone offset used to create the date/time text.  The value
+    must be a positive, zero, or negative integer in seconds,
+    representing the time difference from the UTC (positive for
+    eastern hemisphere).  Defaulted to the platform's time-zone
+    offset.
+
 When the |time| element's |datetime| or |data-tzoffset| attribute
 value is changed, the element's content is updated appropriately.
 (Note that the element's content's mutation is ignored.)
@@ -169,6 +196,15 @@ function TER (c) {
       return new Date (NaN);
     }
   } // parseTimeElement
+
+  function _getNow (el) {
+    let ref = el.getAttribute ('data-reftime');
+    if (ref !== null) {
+      return parseTimeElement ({getAttribute: () => ref}); // or invalid date
+    } else {
+      return new Date;
+    }
+  } // _getNow
 
   function _2digit (i) {
     return i < 10 ? '0' + i : i;
@@ -393,7 +429,7 @@ function TER (c) {
     }
 
     var lang = navigator.language;
-    if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
+    if (_getNow (el).toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
         date.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
       _setMonthDayDateContent (el, date);
     } else {
@@ -418,7 +454,7 @@ function TER (c) {
     }
     
     var lang = navigator.language;
-    if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
+    if (_getNow (el).toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
         usedDate.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
       _setMonthDayHMContent (el, usedDate);
     } else {
@@ -443,7 +479,7 @@ function TER (c) {
     }
     
     var lang = navigator.language;
-    if (new Date ().toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
+    if (_getNow (el).toLocaleString (lang, {timeZone: 'UTC', year: "numeric"}) ===
         usedDate.toLocaleString (lang, {timeZone: 'UTC', year: "numeric"})) {
       _setMonthDayTimeContent (el, usedDate);
     } else {
@@ -498,7 +534,7 @@ function TER (c) {
 
     var text = TER.Delta.prototype.text;
     var dateValue = date.valueOf ();
-    var nowValue = new Date ().valueOf ();
+    var nowValue = _getNow (el).valueOf ();
 
     var diff = dateValue - nowValue;
     if (diff < 0) diff = -diff;
@@ -737,7 +773,7 @@ if (window.TEROnLoad) {
 
 /* ***** BEGIN LICENSE BLOCK *****
  *
- * Copyright 2008-2020 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
+ * Copyright 2008-2024 Wakaba <wakaba@suikawiki.org>.  All rights reserved.
  *
  * Copyright 2017 Hatena <http://hatenacorp.jp/>.  All rights reserved.
  *
