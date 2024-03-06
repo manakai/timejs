@@ -37,6 +37,22 @@
     this.assert.equal (e.textContent, "2012(H24)/4/30");
   </test-code>
 
+  <test-code name="datehm">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2020-05-01T01:12:51Z');
+    e.setAttribute ('data-format', 'datehm');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "2020(R2)/5/1 1:12",
+      "UTC:ja-JP": "2020(R2)/5/1 1:12",
+      "Asia/Tokyo:en-US": "2020(R2)/5/1 10:12",
+      "Asia/Tokyo:ja-JP": "2020(R2)/5/1 10:12",
+      "America/Los_Angeles:en-US": "2020(R2)/5/1 18:12",
+      "America/Los_Angeles:ja-JP": "2020(R2)/5/1 18:12",
+    }[this.env]);
+  </test-code>
+
   <test-code name="monthday">
     var e = document.createElement ('time');
     e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
@@ -44,6 +60,22 @@
     this.currentScript.appendChild (e);
     await this.wait ();
     this.assert.equal (e.textContent, "4/30");
+  </test-code>
+  
+  <test-code name="monthdayhm">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-05-01T01:12:51Z');
+    e.setAttribute ('data-format', 'monthdayhm');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "5/1 1:12",
+      "UTC:ja-JP": "5/1 1:12",
+      "Asia/Tokyo:en-US": "5/1 10:12",
+      "Asia/Tokyo:ja-JP": "5/1 10:12",
+      "America/Los_Angeles:en-US": "4/30 18:12",
+      "America/Los_Angeles:ja-JP": "4/30 18:12",
+    }[this.env]);
   </test-code>
   
   <test-code name="monthdaytime">
