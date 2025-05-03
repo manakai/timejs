@@ -26,3 +26,6 @@
 	path = t_deps/modules/json-ps
 	url = https://github.com/wakaba/perl-json-ps.git
 	track = master
+[submodule "t_deps/modules/streams"]
+	path = t_deps/modules/streams
+	url = https://github.com/manakai/perl-streams
