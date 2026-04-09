@@ -274,13 +274,16 @@ function TER (c) {
     var dts = getComputedStyle (el).getPropertyValue ('--timejs-serialization');
     dts = dts.replace (/^\s+/, '').replace (/\s+$/, '');
     if (dts === 'dtsjp1') {
-      el.textContent = _year (date.valueOf (), date.getFullYear (), dts) + '年' + (date.getMonth () + 1) + '月' + date.getDate () + '日(' + ['日','月','火','水','木','金','土'][date.getDay ()] + ')';
+      el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '年' + (date.getMonth () + 1) + '月' + date.getDate () + '日(' + ['日','月','火','水','木','金','土'][date.getDay ()] + ')';
     } else if (dts === 'dtsjp2') {
-      el.textContent = _year (date.valueOf (), date.getFullYear (), dts) + '.' + (date.getMonth () + 1) + '.' + date.getDate ();
+      el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '.' + (date.getMonth () + 1) + '.' + date.getDate ();
     } else if (dts === 'dtsjp3') {
-      el.textContent = _year (date.valueOf (), date.getFullYear (), dts) + '/' + (date.getMonth () + 1) + '/' + date.getDate ();
+      el.textContent = _year (date.valueOf () - date.getTimezoneOffset () * 60 * 1000, date.getFullYear (), dts) + '/' + (date.getMonth () + 1) + '/' + date.getDate ();
     } else {
-      el.textContent = date.toLocaleDateString (navigator.language, {
+      el.textContent = date.toLocaleString (navigator.language, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
       });
     }
   } // _setDateZonedContent
@@ -498,7 +501,15 @@ function TER (c) {
       r += '-' + ('0' + date.getDate ()).slice (-2);
       el.setAttribute ('datetime', r);
     }
-    _setDateZonedContent (el, date);
+
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+      // XXX This strategy is bad for local DST boundaries...
+    }
+    _setDateZonedContent (el, usedDate);
   } // setDateZonedContent
 
   function setMonthDayDateContent (el, date) {
@@ -534,12 +545,19 @@ function TER (c) {
       el.setAttribute ('datetime', r);
     }
 
+    var tzoffset = el.getAttribute ('data-tzoffset');
+    var usedDate = date;
+    if (tzoffset !== null) {
+      tzoffset = parseFloat (tzoffset);
+      usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+      // XXX This strategy is bad for local DST boundaries...
+    }
     var lang = navigator.language;
     if (_getNow (el).toLocaleString (lang, {year: "numeric"}) ===
-        date.toLocaleString (lang, {year: "numeric"})) {
-      _setMonthDayDateZonedContent (el, date);
+        usedDate.toLocaleString (lang, {year: "numeric"})) {
+      _setMonthDayDateZonedContent (el, usedDate);
     } else {
-      _setDateZonedContent (el, date);
+      _setDateZonedContent (el, usedDate);
     }
   } // setMonthDayDateZonedContent
 
@@ -625,6 +643,7 @@ function TER (c) {
     if (tzoffset !== null) {
       tzoffset = parseFloat (tzoffset);
       usedDate = new Date (date.valueOf () + date.getTimezoneOffset () * 60 * 1000 + tzoffset * 1000);
+      // XXX This strategy is bad for local DST boundaries...
     }
     _setDateTimeContent (el, usedDate);
   } // setDateTimeContent

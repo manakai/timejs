@@ -62,8 +62,8 @@
     var e = this.currentScript.querySelector ('time');
     await this.wait ();
     this.assert.equal (e.textContent, {
-      "UTC:en-US": "平成24(2012)年5月1日(火)",
-      "UTC:ja-JP": "平成24(2012)年5月1日(火)",
+      "UTC:en-US": "平成24(2012)年4月30日(月)",
+      "UTC:ja-JP": "平成24(2012)年4月30日(月)",
       "Asia/Tokyo:en-US": "平成24(2012)年5月1日(火)",
       "Asia/Tokyo:ja-JP": "平成24(2012)年5月1日(火)",
       "America/Los_Angeles:en-US": "平成24(2012)年4月30日(月)",
@@ -83,16 +83,17 @@
 
   <test-code name="monthday zoned">
     var e = document.createElement ('time');
-    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T07:12:51Z');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
     e.setAttribute ('data-format', 'monthday');
     this.currentScript.appendChild (e);
     await this.wait ();
     var w = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-04-30T00:00:00Z").getUTCDay ()];
+    var w2 = ['日','月','火','水','木','金','土'][new Date ((new Date).getFullYear () + "-05-01T00:00:00Z").getUTCDay ()];
     this.assert.equal (e.textContent, {
       "UTC:en-US": "4月30日("+w+")",
       "UTC:ja-JP": "4月30日("+w+")",
-      "Asia/Tokyo:en-US": "4月30日("+w+")",
-      "Asia/Tokyo:ja-JP": "4月30日("+w+")",
+      "Asia/Tokyo:en-US": "5月1日("+w2+")",
+      "Asia/Tokyo:ja-JP": "5月1日("+w2+")",
       "America/Los_Angeles:en-US": "4月30日("+w+")",
       "America/Los_Angeles:ja-JP": "4月30日("+w+")",
     }[this.env]);
