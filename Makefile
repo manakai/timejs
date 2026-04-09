@@ -54,6 +54,8 @@ local/dts-defs.js: bin/dts-defs.pl local/dts.json
 src/time.js: src/time-main.js local/dts-defs.js
 	cat src/time-main.js local/dts-defs.js > $@
 
+build-github-pages:
+
 ## ------ Tests ------
 
 test: test-deps test-main
