@@ -29,3 +29,4 @@
 [submodule "t_deps/modules/streams"]
 	path = t_deps/modules/streams
 	url = https://github.com/manakai/perl-streams
+	track = master
