@@ -29,12 +29,28 @@
   
   <test-code name="date">
     /*
-      <time data-format=date>2012-04-30T23:12:51Z</time>
+      <time data-format=date>2012-04-30</time>
     */
       
     var e = this.currentScript.querySelector ('time');
     await this.wait ();
     this.assert.equal (e.textContent, "2012(H24)/4/30");
+  </test-code>
+
+  <test-code name="date zoned">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', '2020-05-01T01:12:51Z');
+    e.setAttribute ('data-format', 'date');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "2020(R2)/5/1",
+      "UTC:ja-JP": "2020(R2)/5/1",
+      "Asia/Tokyo:en-US": "2020(R2)/5/1",
+      "Asia/Tokyo:ja-JP": "2020(R2)/5/1",
+      "America/Los_Angeles:en-US": "2020(R2)/4/30",
+      "America/Los_Angeles:ja-JP": "2020(R2)/4/30",
+    }[this.env]);
   </test-code>
 
   <test-code name="datehm">
@@ -55,11 +71,27 @@
 
   <test-code name="monthday">
     var e = document.createElement ('time');
-    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30T23:12:51Z');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-04-30');
     e.setAttribute ('data-format', 'monthday');
     this.currentScript.appendChild (e);
     await this.wait ();
     this.assert.equal (e.textContent, "4/30");
+  </test-code>
+  
+  <test-code name="monthdayhm">
+    var e = document.createElement ('time');
+    e.setAttribute ('datetime', (new Date ().getFullYear ()) + '-05-01T01:12:51Z');
+    e.setAttribute ('data-format', 'monthday');
+    this.currentScript.appendChild (e);
+    await this.wait ();
+    this.assert.equal (e.textContent, {
+      "UTC:en-US": "5/1",
+      "UTC:ja-JP": "5/1",
+      "Asia/Tokyo:en-US": "5/1",
+      "Asia/Tokyo:ja-JP": "5/1",
+      "America/Los_Angeles:en-US": "4/30",
+      "America/Los_Angeles:ja-JP": "4/30",
+    }[this.env]);
   </test-code>
   
   <test-code name="monthdayhm">

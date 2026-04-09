@@ -1,4 +1,4 @@
-all:
+all: build
 
 WGET = wget
 CURL = curl
