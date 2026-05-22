@@ -1,4 +1,4 @@
-AnyEvent::Util
+AnyEvent::Handle
 Carp~1.50
 Digest::SHA~6.04
 File::Temp~0.2312
